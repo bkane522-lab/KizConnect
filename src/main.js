@@ -124,8 +124,8 @@ function header() {
   return `<header class="topbar">
     <div class="topbar-inner">
       <button class="brand" data-action="home" aria-label="Accueil KizConnect">
-        <span class="brand-mark">KC</span>
-        <span><strong>KizConnect</strong><small>Trouvez avec qui danser.</small></span>
+        <img class="brand-mark" src="/assets/kizconnect-symbol.png" alt="" aria-hidden="true" />
+        <span><strong>KIZ CONNECT</strong><small>Trouvez avec qui danser.</small></span>
       </button>
       <button class="header-action" data-action="account">${label}</button>
     </div>
@@ -141,21 +141,23 @@ function statusBlock() {
 }
 
 function homeView() {
-  return `<section class="hero">
-      <div class="eyebrow">KizConnect</div>
+  return `<section class="hero crystal-hero">
+      <img class="hero-symbol" src="/assets/kizconnect-symbol.png" alt="Logo Kiz Connect" />
+      <div class="hero-wordmark" aria-label="Kiz Connect"><span>KIZ</span> CONNECT</div>
       <h1>Trouvez avec qui danser.</h1>
-      <p class="lead">Un outil simple pour trouver un partenaire, organiser un training ou partager un trajet.</p>
+      <p class="lead">Partenaire, training, covoiturage et messages. Tout l’essentiel, simplement.</p>
+      <div class="hero-glow" aria-hidden="true"></div>
     </section>
     ${statusBlock()}
     <section class="primary-menu" aria-label="Fonctions principales">
       <button class="big-choice" data-action="go" data-screen="partners">
-        <span class="emoji">💃</span><span><strong>TROUVER UN PARTENAIRE</strong><span>Ville, style et niveau.</span></span>
+        <span class="emoji" aria-hidden="true">◇</span><span><strong>TROUVER UN PARTENAIRE</strong><span>Ville, style et niveau.</span></span>
       </button>
       <button class="big-choice" data-action="go" data-screen="carpool">
-        <span class="emoji">🚗</span><span><strong>COVOITURAGE</strong><span>Chercher une voiture ou proposer des places.</span></span>
+        <span class="emoji" aria-hidden="true">⌁</span><span><strong>COVOITURAGE</strong><span>Chercher une voiture ou proposer des places.</span></span>
       </button>
       <button class="big-choice" data-action="messages">
-        <span class="emoji">💬</span><span><strong>MES MESSAGES</strong><span>Retrouver vos conversations.</span></span>
+        <span class="emoji" aria-hidden="true">•••</span><span><strong>MES MESSAGES</strong><span>Retrouver vos conversations.</span></span>
       </button>
     </section>
     <p class="small-note">Toutes les actions importantes sont visibles. Aucun swipe n'est nécessaire.</p>`;

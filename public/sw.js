@@ -1,5 +1,5 @@
-const CACHE = "kizconnect-v3-shell";
-const CORE = ["/", "/manifest.webmanifest", "/assets/icon-192.png", "/assets/icon-512.png"];
+const CACHE = "kizconnect-v3.1-shell";
+const CORE = ["/", "/manifest.webmanifest", "/assets/icon-192.png", "/assets/icon-512.png", "/assets/kizconnect-symbol.png"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)));
