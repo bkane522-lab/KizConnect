@@ -140,27 +140,58 @@ function statusBlock() {
   return blocks.join("");
 }
 
+function homeIcon(type) {
+  const icons = {
+    partner: `<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="11" cy="10" r="4"/><circle cx="22" cy="11" r="3.5"/><path d="M4.5 25c.6-5.1 3.2-8 7.2-8 4.1 0 6.6 2.9 7.2 8"/><path d="M17.2 23.7c.7-3.8 2.7-6 5.7-6 3.1 0 5 2.2 5.6 6"/></svg>`,
+    car: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 20h18l-2.2-7.2a3 3 0 0 0-2.9-2.1h-7.8a3 3 0 0 0-2.9 2.1L7 20Z"/><path d="M5.5 20v4.5M26.5 20v4.5M7 24.5h18"/><circle cx="10" cy="24.5" r="2"/><circle cx="22" cy="24.5" r="2"/></svg>`,
+    message: `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 7.5h20v14H15l-6 4v-4H6v-14Z"/><path d="M10 13h12M10 17h8"/></svg>`
+  };
+  return icons[type] || "";
+}
+
 function homeView() {
-  return `<section class="hero crystal-hero">
-      <img class="hero-symbol" src="/assets/kizconnect-symbol.png" alt="Logo Kiz Connect" />
-      <div class="hero-wordmark" aria-label="Kiz Connect"><span>KIZ</span> CONNECT</div>
-      <h1>Trouvez avec qui danser.</h1>
-      <p class="lead">Partenaire, training, covoiturage et messages. Tout l’essentiel, simplement.</p>
-      <div class="hero-glow" aria-hidden="true"></div>
+  const accountLabel = state.session ? "MON PROFIL" : "SE CONNECTER";
+  return `<section class="home-hero">
+      <div class="home-hero-copy">
+        <span class="eyebrow">DANSE • RENCONTRE • PARTAGE</span>
+        <div class="home-kicker"><span class="pulse-dot"></span> KIZ CONNECT</div>
+        <h1>Trouvez avec qui danser.</h1>
+        <p class="lead">Partenaire, training, covoiturage et messages. Une app simple pour passer plus vite de l’envie de danser à la rencontre.</p>
+        <div class="hero-actions">
+          <button class="primary hero-primary" data-action="home-start">COMMENCER</button>
+          <button class="hero-account" data-action="account">${accountLabel}</button>
+        </div>
+        <div class="hero-benefits" aria-label="Principes de KizConnect">
+          <span>✓ Simple</span><span>✓ Direct</span><span>✓ Sans swipe</span>
+        </div>
+      </div>
+      <div class="home-hero-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+        <img src="/assets/kizconnect-symbol.png" alt="" />
+        <div class="art-caption"><strong>La danse rapproche.</strong><span>KizConnect vous aide à faire le premier pas.</span></div>
+      </div>
     </section>
     ${statusBlock()}
-    <section class="primary-menu" aria-label="Fonctions principales">
-      <button class="big-choice" data-action="go" data-screen="partners">
-        <span class="emoji" aria-hidden="true">◇</span><span><strong>TROUVER UN PARTENAIRE</strong><span>Ville, style et niveau.</span></span>
-      </button>
-      <button class="big-choice" data-action="go" data-screen="carpool">
-        <span class="emoji" aria-hidden="true">⌁</span><span><strong>COVOITURAGE</strong><span>Chercher une voiture ou proposer des places.</span></span>
-      </button>
-      <button class="big-choice" data-action="messages">
-        <span class="emoji" aria-hidden="true">•••</span><span><strong>MES MESSAGES</strong><span>Retrouver vos conversations.</span></span>
-      </button>
+    <section class="home-actions" id="home-actions" aria-labelledby="home-actions-title">
+      <div class="home-section-head">
+        <span class="eyebrow">EN QUELQUES SECONDES</span>
+        <h2 id="home-actions-title">Qu’avez-vous envie de faire ?</h2>
+        <p>Choisissez. KizConnect vous emmène directement à l’essentiel.</p>
+      </div>
+      <div class="primary-menu" aria-label="Fonctions principales">
+        <button class="big-choice featured-choice" data-action="go" data-screen="partners">
+          <span class="choice-icon" aria-hidden="true">${homeIcon("partner")}</span><span><strong>TROUVER UN PARTENAIRE</strong><span>Ville, style et niveau. Trouvez des danseurs autour de vous.</span></span>
+        </button>
+        <button class="big-choice" data-action="go" data-screen="carpool">
+          <span class="choice-icon" aria-hidden="true">${homeIcon("car")}</span><span><strong>COVOITURAGE</strong><span>Chercher une voiture ou proposer des places.</span></span>
+        </button>
+        <button class="big-choice" data-action="messages">
+          <span class="choice-icon" aria-hidden="true">${homeIcon("message")}</span><span><strong>MES MESSAGES</strong><span>Retrouvez vos conversations et organisez-vous simplement.</span></span>
+        </button>
+      </div>
     </section>
-    <p class="small-note">Toutes les actions importantes sont visibles. Aucun swipe n'est nécessaire.</p>`;
+    <div class="home-signature"><span></span><p><strong>Simple. Humain. Accessible.</strong><br />Toutes les actions importantes sont visibles, sans menu caché.</p><span></span></div>`;
 }
 
 function partnersView() {
@@ -660,6 +691,10 @@ app.addEventListener("click", async event => {
   const action = button.dataset.action;
 
   if (action === "home") { go("home"); return; }
+  if (action === "home-start") {
+    document.querySelector("#home-actions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
   if (action === "go") { go(button.dataset.screen); return; }
   if (action === "account") { if (state.session) go("profile"); else { state.authReason = ""; state.authMode = "login"; go("auth"); } return; }
   if (action === "toggle-auth") { state.authMode = state.authMode === "signup" ? "login" : "signup"; state.error = ""; state.notice = ""; render(); return; }

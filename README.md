@@ -1,4 +1,4 @@
-# KizConnect V3.1 — Crystal UI
+# KizConnect V3.1.1 — Crystal Home
 
 **KizConnect — Trouvez avec qui danser.**
 
@@ -114,3 +114,19 @@ Refonte visuelle :
 - aucune nouvelle navigation cachée ni swipe obligatoire.
 
 La migration Supabase reste `supabase/migrations/001_kizconnect_v3.sql` : si la V3 est déjà installée et fonctionnelle, ne la réexécute pas uniquement pour passer à la V3.1.
+
+
+## V3.1.1 — Accueil plus attirant
+
+Cette version conserve toutes les fonctions V3/V3.1 déjà validées et retravaille uniquement l'expérience d'accueil :
+
+- hero plus vivant et plus compact ;
+- logo cristal mis en scène sans surcharger l'écran ;
+- bouton **COMMENCER** qui descend vers les 3 actions principales ;
+- pictogrammes explicites pour partenaire, covoiturage et messages ;
+- meilleure hiérarchie visuelle et contraste ;
+- rappel **Simple · Direct · Sans swipe** ;
+- responsive renforcé pour téléphone ;
+- aucun changement de schéma Supabase.
+
+Si votre V3 fonctionne déjà, **ne réexécutez pas la migration SQL** pour passer à la V3.1.1.
