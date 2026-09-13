@@ -156,7 +156,7 @@ function homeView() {
         <span class="eyebrow">DANSE • RENCONTRE • PARTAGE</span>
         <div class="home-kicker"><span class="pulse-dot"></span> KIZ CONNECT</div>
         <h1>Trouvez avec qui danser.</h1>
-        <p class="lead">Partenaire, training, covoiturage et messages. Une app simple pour passer plus vite de l’envie de danser à la rencontre.</p>
+        <p class="lead">Partenaire, training, covoiturage et messages. Tout ce qu’il faut pour danser, sans perdre du temps dans une app compliquée.</p>
         <div class="hero-actions">
           <button class="primary hero-primary" data-action="home-start">COMMENCER</button>
           <button class="hero-account" data-action="account">${accountLabel}</button>
@@ -169,14 +169,14 @@ function homeView() {
         <div class="art-orbit orbit-one"></div>
         <div class="art-orbit orbit-two"></div>
         <img src="/assets/kizconnect-symbol.png" alt="" />
-        <div class="art-caption"><strong>La danse rapproche.</strong><span>KizConnect vous aide à faire le premier pas.</span></div>
+        <div class="art-caption"><strong>La danse rapproche.</strong><span>Des personnes réelles. Des besoins simples. Une connexion directe.</span></div>
       </div>
     </section>
     ${statusBlock()}
     <section class="home-actions" id="home-actions" aria-labelledby="home-actions-title">
       <div class="home-section-head">
-        <span class="eyebrow">EN QUELQUES SECONDES</span>
-        <h2 id="home-actions-title">Qu’avez-vous envie de faire ?</h2>
+        <span class="eyebrow">DIRECTEMENT À L’ESSENTIEL</span>
+        <h2 id="home-actions-title">Que cherchez-vous aujourd’hui ?</h2>
         <p>Choisissez. KizConnect vous emmène directement à l’essentiel.</p>
       </div>
       <div class="primary-menu" aria-label="Fonctions principales">

@@ -514,3 +514,255 @@ textarea { min-height: 98px; resize: vertical; }
   .big-choice, .primary, .secondary, .header-action, .back-btn { transition: transform .16s ease, border-color .16s ease, filter .16s ease, box-shadow .16s ease, background .16s ease; }
   .primary:active, .secondary:active, .big-choice:active { transform: translateY(1px) scale(.995); }
 }
+
+/* =========================================================
+   KizConnect V3.2 — Crystal Polish
+   Finition générale sans modifier les parcours fonctionnels.
+   ========================================================= */
+
+:root {
+  --crystal-violet: #a53cff;
+  --crystal-pink: #e14eff;
+  --crystal-orange: #ff7849;
+  --crystal-white: #fff8ff;
+  --surface-glass: rgba(23, 9, 38, .76);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fine crystal halo behind the whole app */
+.app-shell::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  width: min(68vw, 780px);
+  height: min(68vw, 780px);
+  left: 50%;
+  top: 34vh;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(151, 45, 255, .09), rgba(91, 20, 164, .035) 42%, transparent 69%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.topbar {
+  border-bottom-color: rgba(226, 147, 255, .18);
+  box-shadow: 0 9px 34px rgba(0,0,0,.19);
+}
+.topbar-inner { max-width: 820px; }
+.header-action {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(219, 138, 255, .32);
+}
+.header-action::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,.08) 45%, transparent 70%);
+  transform: translateX(-130%);
+}
+.header-action:hover::before { transform: translateX(130%); transition: transform .55s ease; }
+
+main { max-width: 820px; }
+
+/* Hero V3.2: deeper crystal finish + better proportions */
+.home-hero {
+  min-height: 405px;
+  border-color: rgba(224, 143, 255, .29);
+  background:
+    radial-gradient(circle at 80% 17%, rgba(189, 43, 255, .28), transparent 31%),
+    radial-gradient(circle at 13% 88%, rgba(255, 113, 66, .10), transparent 29%),
+    linear-gradient(140deg, rgba(48, 15, 76, .88), rgba(8, 4, 17, .97) 57%, rgba(24, 8, 41, .95));
+  box-shadow:
+    0 30px 82px rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,255,255,.025) inset,
+    0 0 82px rgba(141, 35, 236, .14);
+}
+.home-hero-copy::after {
+  content: "";
+  width: 72px;
+  height: 2px;
+  margin-top: 22px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--crystal-orange), var(--crystal-pink), transparent);
+  box-shadow: 0 0 16px rgba(228, 73, 255, .35);
+}
+.home-hero h1 {
+  color: var(--crystal-white);
+  text-shadow: 0 1px 16px rgba(180, 70, 255, .11);
+}
+.home-hero .lead { color: #d2c1de; }
+.home-hero-art {
+  border-color: rgba(232, 157, 255, .26);
+  box-shadow: inset 0 1px rgba(255,255,255,.06), 0 20px 45px rgba(0,0,0,.32), 0 0 34px rgba(161, 42, 255, .10);
+}
+.home-hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(145deg, rgba(255,255,255,.08), transparent 20% 72%, rgba(223,70,255,.08));
+  mix-blend-mode: screen;
+}
+.art-caption { z-index: 4; }
+.hero-benefits span {
+  border-color: rgba(223, 145, 255, .25);
+  background: rgba(77, 25, 112, .31);
+  color: #eadcf2;
+}
+
+/* Main action cards: stronger hierarchy and touch feedback */
+.primary-menu { gap: 14px; }
+.big-choice {
+  min-height: 102px;
+  border-color: rgba(219, 135, 255, .28);
+  background:
+    linear-gradient(135deg, rgba(46, 16, 70, .92), rgba(16, 7, 28, .94)),
+    linear-gradient(90deg, rgba(185, 52, 255, .07), transparent);
+  box-shadow: 0 17px 38px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.035);
+}
+.big-choice::before {
+  opacity: .42;
+  background:
+    radial-gradient(circle at 11% 50%, rgba(185, 55, 255, .16), transparent 30%),
+    linear-gradient(90deg, transparent 0 72%, rgba(255, 112, 62, .035));
+}
+.big-choice::after { color: #f0d4ff; }
+.big-choice:hover {
+  transform: translateY(-2px);
+  border-color: rgba(230, 163, 255, .48);
+  box-shadow: 0 21px 48px rgba(0,0,0,.34), 0 0 32px rgba(165, 54, 255, .12);
+}
+.featured-choice {
+  border-color: rgba(231, 151, 255, .46);
+  background: linear-gradient(135deg, rgba(91, 24, 137, .77), rgba(31, 9, 50, .94) 58%, rgba(48, 12, 68, .94));
+}
+.choice-icon {
+  background: linear-gradient(145deg, rgba(184, 59, 255, .34), rgba(63, 15, 107, .51));
+  border-color: rgba(227, 151, 255, .42);
+  box-shadow: inset 0 1px rgba(255,255,255,.10), 0 0 22px rgba(173, 41, 255, .13);
+}
+
+/* Crystal surfaces throughout the application */
+.card, .form-card, .modal {
+  border-color: rgba(216, 133, 255, .27);
+}
+.card, .form-card {
+  background:
+    linear-gradient(145deg, rgba(34, 13, 53, .89), rgba(12, 6, 22, .91));
+  box-shadow: 0 18px 42px rgba(0,0,0,.29), inset 0 1px rgba(255,255,255,.035);
+}
+.card:hover { border-color: rgba(220, 142, 255, .39); }
+.page-head h2 { color: #fff9ff; }
+.page-head p { color: #c7b5d2; }
+.back-btn:hover { border-color: rgba(228, 154, 255, .46); background: rgba(62, 22, 92, .75); }
+
+/* Form controls: clearer focus state for all generations */
+input, select, textarea {
+  border-color: rgba(211, 126, 255, .27);
+  background: rgba(7, 4, 14, .78);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(221, 129, 255, .64);
+  box-shadow: 0 0 0 4px rgba(173, 51, 255, .10), 0 0 24px rgba(167, 48, 255, .08);
+}
+label { color: #fcf6ff; }
+.help { color: #baa8c7; }
+
+.primary {
+  background: linear-gradient(100deg, #721bd1 0%, #a927f4 48%, #db43d1 82%, #ef704b 130%);
+  border-color: rgba(246, 184, 255, .30);
+  box-shadow: 0 9px 27px rgba(151, 37, 241, .27), inset 0 1px rgba(255,255,255,.18);
+}
+.primary:hover { box-shadow: 0 12px 32px rgba(169, 42, 255, .34), 0 0 20px rgba(229, 69, 255, .09); }
+.secondary { border-color: rgba(215, 130, 255, .28); }
+
+/* Empty / feedback states feel intentional rather than unfinished */
+.empty {
+  position: relative;
+  overflow: hidden;
+  border-style: solid;
+  border-color: rgba(211, 126, 255, .20);
+  background: linear-gradient(145deg, rgba(28, 11, 44, .58), rgba(10, 5, 18, .58));
+}
+.empty::before {
+  content: "✦";
+  display: block;
+  margin: 0 auto 10px;
+  color: #bd65ee;
+  font-size: 1.25rem;
+  text-shadow: 0 0 18px rgba(188, 82, 255, .35);
+}
+.status { box-shadow: inset 0 1px rgba(255,255,255,.035); }
+
+/* Profiles */
+.avatar {
+  background: linear-gradient(145deg, rgba(171, 48, 255, .37), rgba(75, 18, 122, .48));
+  border-color: rgba(229, 153, 255, .34);
+}
+.tag {
+  background: rgba(144, 40, 221, .22);
+  border-color: rgba(205, 119, 255, .27);
+  color: #efd9ff;
+}
+.person-line h3 { color: #fff9ff; }
+
+/* Messaging */
+.bubble.mine {
+  background: linear-gradient(135deg, #741cd5, #a927f4 64%, #d13fd0);
+  box-shadow: 0 8px 21px rgba(153, 38, 236, .22);
+}
+.bubble.theirs {
+  background: rgba(34, 14, 52, .89);
+  border-color: rgba(211, 126, 255, .25);
+}
+.chat-compose { padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+
+/* Improve touch areas without visual clutter */
+.header-action, .back-btn, .small-action, .close-btn { touch-action: manipulation; }
+.big-choice, .primary, .secondary, .danger-btn, .hero-account { touch-action: manipulation; }
+
+/* Mobile V3.2: show the useful actions sooner */
+@media (max-width: 680px) {
+  main { padding-top: 17px; }
+  .home-hero { min-height: 0; gap: 15px; }
+  .home-hero-copy::after { margin-top: 17px; }
+  .home-hero-art { min-height: 235px; }
+  .home-hero-art img { object-fit: contain; padding: 5px 12px 16px; }
+  .art-caption { padding: 10px 12px; }
+  .big-choice { min-height: 92px; }
+}
+
+@media (max-width: 520px) {
+  .topbar-inner { min-height: 67px; }
+  .header-action { min-height: 42px; padding-inline: 13px; }
+  .home-hero { padding: 17px; margin-top: 0; }
+  .home-hero h1 { margin-top: 14px; margin-bottom: 13px; }
+  .home-hero .lead { font-size: .97rem; }
+  .home-hero-art { min-height: 205px; }
+  .home-kicker { letter-spacing: .20em; }
+  .primary-menu { gap: 11px; }
+  .big-choice { border-radius: 20px; min-height: 88px; }
+  .big-choice span:last-child { font-size: .83rem; }
+  .choice-icon { width: 52px; height: 52px; }
+  .card, .form-card { border-radius: 20px; padding: 16px; }
+}
+
+@media (max-width: 390px) {
+  .home-hero-art { min-height: 185px; }
+  .art-caption span { font-size: .74rem; }
+  .home-signature { margin-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: .001ms !important; animation-duration: .001ms !important; }
+}

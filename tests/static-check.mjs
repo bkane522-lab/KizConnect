@@ -23,7 +23,7 @@ for (const file of required) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-if (pkg.version !== "3.1.1") failures.push("package.json n'est pas en version 3.1.1");
+if (pkg.version !== "3.2.0") failures.push("package.json n'est pas en version 3.2.0");
 
 const main = fs.readFileSync(path.join(root, "src/main.js"), "utf8");
 const api = fs.readFileSync(path.join(root, "src/api.js"), "utf8");
@@ -52,8 +52,8 @@ for (const expected of [
 }
 
 if (failures.length) {
-  console.error("KizConnect V3.1.1 — échec du contrôle statique:\n- " + failures.join("\n- "));
+  console.error("KizConnect V3.2 — échec du contrôle statique:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("KizConnect V3.1.1 — contrôle statique OK.");
+console.log("KizConnect V3.2 — contrôle statique OK.");

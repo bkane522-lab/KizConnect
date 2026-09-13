@@ -1,10 +1,10 @@
-# KizConnect V3.1.1 — Crystal Home
+# KizConnect V3.2 — Crystal Polish
 
 **KizConnect — Trouvez avec qui danser.**
 
 Parcours principal : **Ouvrir → Choisir → Rechercher → Contacter.**
 
-## Ce que contient la V3.1
+## Ce que contient la V3.2
 
 - accueil limité à 3 actions principales ;
 - navigation sans swipe ni geste caché ;
@@ -86,7 +86,7 @@ npm run build
 
 le dossier `dist/` peut être déployé sur Vercel ou un hébergeur statique compatible PWA.
 
-## Ce qui n'est volontairement pas dans la V3.1
+## Ce qui n'est volontairement pas dans la V3.2
 
 - followers ;
 - likes ;
@@ -98,7 +98,7 @@ le dossier `dist/` peut être déployé sur Vercel ou un hébergeur statique com
 - système de paiement ;
 - réseau social complexe.
 
-La V3.1 reste une bêta : avant publication publique, les tests multi-comptes du plan de test doivent être réalisés sur le vrai projet Supabase.
+La V3.2 reste une bêta : avant publication publique, les tests multi-comptes du plan de test doivent être réalisés sur le vrai projet Supabase.
 
 ## V3.1 — Crystal UI
 
@@ -130,3 +130,19 @@ Cette version conserve toutes les fonctions V3/V3.1 déjà validées et retravai
 - aucun changement de schéma Supabase.
 
 Si votre V3 fonctionne déjà, **ne réexécutez pas la migration SQL** pour passer à la V3.1.1.
+
+## V3.2 — Crystal Polish
+
+La V3.2 conserve intégralement la base fonctionnelle déjà validée et ajoute une passe de finition globale :
+
+- cohérence visuelle renforcée sur tous les écrans ;
+- surfaces cristal plus lisibles et moins agressives ;
+- accueil plus compact sur mobile pour voir les actions principales plus vite ;
+- focus des formulaires plus évident ;
+- cartes profil, états vides et messagerie harmonisés ;
+- zones tactiles et contraste affinés ;
+- support `prefers-reduced-motion` ;
+- métadonnées PWA/iOS complétées ;
+- aucun changement de schéma Supabase.
+
+Si la V3/V3.1 fonctionne déjà sur votre projet Supabase, **ne réexécutez pas la migration SQL** pour installer la V3.2.
