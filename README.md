@@ -1,10 +1,10 @@
-# KizConnect V3.2 — Crystal Polish
+# KizConnect V3.2.1 — Above-the-fold UX
 
 **KizConnect — Trouvez avec qui danser.**
 
 Parcours principal : **Ouvrir → Choisir → Rechercher → Contacter.**
 
-## Ce que contient la V3.2
+## Ce que contient la V3.2.1
 
 - accueil limité à 3 actions principales ;
 - navigation sans swipe ni geste caché ;
@@ -86,7 +86,7 @@ npm run build
 
 le dossier `dist/` peut être déployé sur Vercel ou un hébergeur statique compatible PWA.
 
-## Ce qui n'est volontairement pas dans la V3.2
+## Ce qui n'est volontairement pas dans la V3.2.1
 
 - followers ;
 - likes ;
@@ -146,3 +146,10 @@ La V3.2 conserve intégralement la base fonctionnelle déjà validée et ajoute 
 - aucun changement de schéma Supabase.
 
 Si la V3/V3.1 fonctionne déjà sur votre projet Supabase, **ne réexécutez pas la migration SQL** pour installer la V3.2.
+
+
+## V3.2.1 — Above-the-fold UX
+
+Cette version ne modifie ni Supabase ni les fonctionnalités validées. Elle réorganise l’accueil pour que **Trouver un partenaire**, **Covoiturage** et **Mes messages** soient visibles immédiatement à l’ouverture sur les écrans courants, sans devoir faire défiler un grand hero. Le bouton intermédiaire « Commencer » a été supprimé : l’utilisateur choisit directement son besoin.
+
+Si votre base V3 fonctionne déjà, **ne réexécutez pas la migration SQL**.
