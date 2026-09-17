@@ -102,14 +102,14 @@ export async function uploadAvatar(userId, file) {
   return `${data.publicUrl}?v=${Date.now()}`;
 }
 
-export async function searchPartners({ city = "", style = "", level = "" }) {
+export async function searchPartners({ city = "", style = "", level = "", broad = false }) {
   needSupabase();
   let query = supabase
     .from("profiles")
     .select("id,display_name,city,level,styles,bio,avatar_url,updated_at")
     .eq("is_visible", true)
-    .limit(50);
-  if (city.trim()) query = query.ilike("city", `%${city.trim()}%`);
+    .limit(broad ? 120 : 50);
+  if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
   if (style) query = query.contains("styles", [style]);
   if (level) query = query.eq("level", level);
   return resultOrThrow(await query.order("updated_at", { ascending: false }));
@@ -268,6 +268,16 @@ export async function listBlockedIds(userId) {
     .eq("blocker_id", userId);
   if (error) return [];
   return (data || []).map(row => row.blocked_user_id);
+}
+
+
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.3.0" }) {
+  needSupabase();
+  return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
+    feedback_category: category,
+    feedback_message: message,
+    feedback_version: appVersion
+  }));
 }
 
 export async function reportUser({ reporterId, reportedUserId, category, details }) {

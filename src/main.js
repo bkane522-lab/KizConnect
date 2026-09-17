@@ -1,9 +1,11 @@
 import "./styles.css";
 import * as api from "./api.js";
 import { DANCE_STYLES, LEVELS, REPORT_CATEGORIES } from "./config.js";
+import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
+const APP_VERSION = "3.3.0";
 
 const state = {
   screen: "home",
@@ -96,6 +98,7 @@ async function executePendingAction(action) {
   if (action.type === "carpool-offer") { go("carpool-offer"); return true; }
   if (action.type === "message-user") { await openConversation(action.userId, action.draft || ""); return true; }
   if (action.type === "report-user") { state.reportTarget = { id: action.userId, name: action.name || "ce profil" }; go("report"); return true; }
+  if (action.type === "feedback") { go("feedback"); return true; }
   return false;
 }
 
@@ -157,7 +160,7 @@ function homeView() {
           <span class="eyebrow">DANSE • RENCONTRE • PARTAGE</span>
           <div class="home-kicker"><span class="pulse-dot"></span> KIZ CONNECT</div>
           <h1 id="home-title">Trouvez avec qui danser.</h1>
-          <p class="lead">Partenaire, covoiturage, messages. Choisissez votre besoin et allez directement à l’essentiel.</p>
+          <p class="lead">Partenaire, covoiturage, messages. Allez directement à l’essentiel.</p>
           <div class="home-intro-promise"><strong>La danse rapproche.</strong><span>Simple. Humain. Accessible.</span></div>
         </div>
         <div class="home-mini-art" aria-hidden="true">
@@ -170,7 +173,7 @@ function homeView() {
         <div class="home-section-head compact">
           <span class="eyebrow">DIRECTEMENT À L’ESSENTIEL</span>
           <h2 id="home-actions-title">Que cherchez-vous ?</h2>
-          <p>Un choix, puis l’action.</p>
+          <p>Choisissez votre besoin.</p>
         </div>
         <div class="primary-menu home-priority-menu" aria-label="Fonctions principales">
           <button class="big-choice featured-choice" data-action="go" data-screen="partners">
@@ -185,6 +188,10 @@ function homeView() {
         </div>
       </section>
     </section>
+    <section class="beta-note" aria-label="Version bêta">
+      <div><strong>KizConnect est ouvert à tous les danseurs.</strong><span>Bêta V3.3 · Vos retours nous aident à simplifier l’app.</span></div>
+      <button class="secondary beta-feedback-btn" data-action="feedback">DONNER MON AVIS</button>
+    </section>
     <div class="home-signature home-signature-compact"><span></span><p><strong>Ouvrir → Choisir → Rechercher → Contacter.</strong></p><span></span></div>`;
 }
 
@@ -192,7 +199,8 @@ function partnersView() {
   return `${pageHead("Trouver un partenaire", "Recherchez simplement autour de vous.")}
     ${statusBlock()}
     <form class="form-card" id="partner-search-form">
-      <div class="field"><label for="partner-city">📍 Ville ou zone</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
+      <div class="field"><label for="partner-city">📍 Ville</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
+      <div class="field"><label for="partner-radius">📏 Rayon autour de la ville</label><select id="partner-radius" name="radius"><option value="0">Ville exacte</option><option value="5">+ 5 km</option><option value="10">+ 10 km</option><option value="25">+ 25 km</option><option value="50">+ 50 km</option></select><div class="help">Le rayon utilise le centre des communes françaises. La distance est approximative.</div></div>
       <div class="field"><label for="partner-style">💃 Style de danse</label><select id="partner-style" name="style"><option value="">Tous les styles</option>${DANCE_STYLES.map(x => `<option>${x}</option>`).join("")}</select></div>
       <div class="field"><label for="partner-level">🎯 Niveau</label><select id="partner-level" name="level"><option value="">Tous les niveaux</option>${LEVELS.map(x => `<option>${x}</option>`).join("")}</select></div>
       <button class="primary" type="submit">RECHERCHER</button>
@@ -206,8 +214,9 @@ function partnersView() {
 
 function profileCard(profile) {
   const styles = Array.isArray(profile.styles) ? profile.styles : [];
+  const distance = Number.isFinite(profile._distanceKm) ? ` · ≈ ${Math.max(1, Math.round(profile._distanceKm))} km` : "";
   return `<article class="card">
-    <div class="person-line">${avatar(profile)}<div><h3>${escapeHtml(profile.display_name || "Danseur")}</h3><div class="meta">📍 ${escapeHtml(profile.city || "Ville non indiquée")} · ${escapeHtml(profile.level || "Niveau non indiqué")}</div></div></div>
+    <div class="person-line">${avatar(profile)}<div><h3>${escapeHtml(profile.display_name || "Danseur")}</h3><div class="meta">📍 ${escapeHtml(profile.city || "Ville non indiquée")}${distance} · ${escapeHtml(profile.level || "Niveau non indiqué")}</div></div></div>
     <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}</div>
     <button class="secondary top-gap" data-action="view-profile" data-id="${escapeHtml(profile.id)}">VOIR LE PROFIL</button>
   </article>`;
@@ -223,13 +232,36 @@ async function searchPartners(form) {
   }
   try {
     const formData = new FormData(form);
+    const city = String(formData.get("city") || "").trim();
+    const radius = Number(formData.get("radius") || 0);
+    const style = formData.get("style") || "";
+    const level = formData.get("level") || "";
+    const useRadius = Boolean(city && radius > 0);
+
     const [profiles, blockedIds] = await Promise.all([
-      api.searchPartners({ city: formData.get("city") || "", style: formData.get("style") || "", level: formData.get("level") || "" }),
+      api.searchPartners({ city, style, level, broad: useRadius }),
       api.listBlockedIds(state.session?.user?.id)
     ]);
-    const visible = (profiles || []).filter(profile => profile.id !== state.session?.user?.id && !blockedIds.includes(profile.id));
+
+    let visible = (profiles || []).filter(profile => profile.id !== state.session?.user?.id && !blockedIds.includes(profile.id));
+    let info = "";
+    if (useRadius) {
+      try {
+        const nearby = await filterProfilesByRadius(visible, city, radius);
+        if (!nearby.geocoded) {
+          target.innerHTML = `<div class="status error">Ville introuvable pour le calcul du rayon. Essayez la ville exacte ou une autre commune française.</div>`;
+          return;
+        }
+        visible = nearby.profiles;
+        info = ` dans un rayon d’environ ${radius} km autour de ${escapeHtml(nearby.origin?.name || city)}`;
+      } catch {
+        target.innerHTML = `<div class="status error">Le service de localisation des communes est momentanément indisponible. Essayez « Ville exacte ».</div>`;
+        return;
+      }
+    }
+
     if (!document.querySelector("#partner-results")) return;
-    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty">Aucun profil ne correspond à cette recherche.</div>`}`;
+    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}${info}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty">Aucun profil ne correspond à cette recherche.</div>`}`;
   } catch {
     target.innerHTML = `<div class="status error">Impossible d'effectuer la recherche pour le moment.</div>`;
   }
@@ -497,6 +529,17 @@ function reportView() {
     </form>`;
 }
 
+function feedbackView() {
+  return `${pageHead("Votre avis sur la bêta", "Un retour court suffit pour nous aider.", "home")}
+    ${statusBlock()}
+    <form class="form-card" id="feedback-form">
+      <div class="field"><label for="feedback-category">Type de retour</label><select id="feedback-category" name="category" required><option value="ux">Simplicité / UX</option><option value="bug">Bug ou blocage</option><option value="idea">Idée d'amélioration</option><option value="other">Autre</option></select></div>
+      <div class="field"><label for="feedback-message">Votre retour</label><textarea id="feedback-message" name="message" minlength="3" maxlength="1000" required placeholder="Qu'est-ce qui est clair, moins intuitif ou à améliorer ?"></textarea></div>
+      <div class="help">Votre retour est associé à votre compte uniquement pour limiter le spam. Il n'est pas affiché publiquement.</div>
+      <button class="primary top-gap" type="submit">ENVOYER MON AVIS</button>
+    </form>`;
+}
+
 function friendlyError(error, fallback) {
   const message = String(error?.message || "").toLowerCase();
   if (error?.code === "SUPABASE_NOT_CONFIGURED") return "Supabase n'est pas encore configuré.";
@@ -504,6 +547,7 @@ function friendlyError(error, fallback) {
   if (error?.code === "AVATAR_SIZE") return "La photo doit faire moins de 2 Mo.";
   if (message.includes("rate_limit_message")) return "Vous envoyez trop de messages. Réessayez dans une minute.";
   if (message.includes("rate_limit_listing")) return "Vous avez publié plusieurs annonces récemment. Réessayez un peu plus tard.";
+  if (message.includes("feedback rate limited")) return "Merci pour votre retour. Attendez quelques secondes avant d’en envoyer un autre.";
   if (message.includes("past_date")) return "Choisissez une date d'aujourd'hui ou future.";
   if (message.includes("conversation blocked")) return "Cette conversation est bloquée.";
   if (message.includes("invalid login credentials")) return "Votre email ou votre mot de passe est incorrect.";
@@ -528,6 +572,7 @@ function render() {
     case "my-posts": content = myPostsView(); break;
     case "blocked-users": content = blockedUsersView(); break;
     case "report": content = reportView(); break;
+    case "feedback": content = feedbackView(); break;
     default: content = homeView();
   }
   app.innerHTML = `<div class="app-shell">${header()}<main class="${state.screen === "home" ? "main-home" : ""}">${content}</main></div>`;
@@ -663,6 +708,25 @@ function wireForms() {
     }
   });
 
+  document.querySelector("#feedback-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!state.session) return;
+    const fd = new FormData(event.currentTarget);
+    try {
+      await api.submitBetaFeedback({
+        userId: state.session.user.id,
+        category: fd.get("category"),
+        message: String(fd.get("message") || "").trim(),
+        appVersion: APP_VERSION
+      });
+      setFlash("Merci ! Votre retour bêta a bien été envoyé.");
+      go("home", { preserveFlash: true });
+    } catch (error) {
+      setFlash(friendlyError(error, "Votre retour n'a pas pu être envoyé."), "error");
+      render();
+    }
+  });
+
   document.querySelector("#report-form")?.addEventListener("submit", async event => {
     event.preventDefault();
     if (!state.session || !state.reportTarget) return;
@@ -689,6 +753,7 @@ app.addEventListener("click", async event => {
   if (action === "account") { if (state.session) go("profile"); else { state.authReason = ""; state.authMode = "login"; go("auth"); } return; }
   if (action === "toggle-auth") { state.authMode = state.authMode === "signup" ? "login" : "signup"; state.error = ""; state.notice = ""; render(); return; }
   if (action === "messages") { await requireAuth("Connectez-vous pour lire et envoyer vos messages.", { type: "messages" }); return; }
+  if (action === "feedback") { await requireAuth("Connectez-vous pour envoyer un retour bêta.", { type: "feedback" }); return; }
   if (action === "training-create") { await requireAuth("Créez votre compte pour publier une demande de training.", { type: "training-create" }); return; }
   if (action === "carpool-offer") { await requireAuth("Créez votre compte pour proposer des places.", { type: "carpool-offer" }); return; }
   if (action === "my-posts") { go("my-posts"); return; }
@@ -805,6 +870,40 @@ async function resumeAfterBoot() {
   return executePendingAction(pending);
 }
 
+function showUpdatePrompt(registration) {
+  if (document.querySelector("#update-toast")) return;
+  const toast = document.createElement("div");
+  toast.id = "update-toast";
+  toast.className = "update-toast";
+  toast.innerHTML = `<div><strong>Nouvelle version disponible</strong><span>Mettez KizConnect à jour sans réinstaller l'app.</span></div><button type="button">METTRE À JOUR</button>`;
+  toast.querySelector("button")?.addEventListener("click", () => {
+    registration.waiting?.postMessage({ type: "SKIP_WAITING" });
+  });
+  document.body.appendChild(toast);
+}
+
+async function setupServiceWorkerUpdates() {
+  if (!("serviceWorker" in navigator) || !import.meta.env.PROD) return;
+  try {
+    const registration = await navigator.serviceWorker.register("/sw.js");
+    if (registration.waiting && navigator.serviceWorker.controller) showUpdatePrompt(registration);
+    registration.addEventListener("updatefound", () => {
+      const worker = registration.installing;
+      if (!worker) return;
+      worker.addEventListener("statechange", () => {
+        if (worker.state === "installed" && navigator.serviceWorker.controller) showUpdatePrompt(registration);
+      });
+    });
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+    registration.update().catch(() => {});
+  } catch {}
+}
+
 async function boot() {
   await refreshSession();
   if (api.isConfigured()) {
@@ -816,7 +915,7 @@ async function boot() {
   }
   const resumed = await resumeAfterBoot();
   if (!resumed) render();
-  if ("serviceWorker" in navigator && import.meta.env.PROD) navigator.serviceWorker.register("/sw.js").catch(() => {});
+  setupServiceWorkerUpdates();
 }
 
 boot();
