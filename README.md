@@ -1,4 +1,4 @@
-# KizConnect V3.3 — Bêta terrain
+# KizConnect V3.3.1 — UX Polish
 
 > Cette version part de la V3.2.2 validée et intègre les premiers retours de bêta-testeurs : recherche autour d’une ville, collecte structurée des retours et mise à jour PWA visible. Les fonctions existantes restent inchangées.
 
@@ -182,3 +182,12 @@ Si votre base V3 fonctionne déjà, **ne réexécutez pas la migration SQL**.
 - Un échec du service géographique n’empêche pas l’usage de la recherche « Ville exacte ».
 - Les retours bêta sont privés et liés au compte uniquement pour limiter le spam.
 - La V3.3 ajoute une migration Supabase **002**.
+
+
+## V3.3.1 — UX Polish
+
+- Affichage public simplifié : **Version bêta** sans numéro technique.
+- Bouton **Donner mon avis** rendu plus discret.
+- Confirmations de succès plus lisibles.
+- États vides plus utiles avec une action suggérée.
+- Aucun changement de schéma Supabase : la migration 002 déjà exécutée reste suffisante.
