@@ -1,7 +1,7 @@
 {
   "name": "KizConnect",
   "short_name": "KizConnect",
-  "description": "KizConnect — Trouvez avec qui danser.",
+  "description": "KizConnect — Trouvez avec qui danser. Bêta V3.3.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
