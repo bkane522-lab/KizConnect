@@ -271,7 +271,7 @@ export async function listBlockedIds(userId) {
 }
 
 
-export async function submitBetaFeedback({ userId, category, message, appVersion = "3.3.0" }) {
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.3.1" }) {
   needSupabase();
   return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
     feedback_category: category,

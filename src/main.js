@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.3.0";
+const APP_VERSION = "3.3.1";
 
 const state = {
   screen: "home",
@@ -189,8 +189,8 @@ function homeView() {
       </section>
     </section>
     <section class="beta-note" aria-label="Version bêta">
-      <div><strong>KizConnect est ouvert à tous les danseurs.</strong><span>Bêta V3.3 · Vos retours nous aident à simplifier l’app.</span></div>
-      <button class="secondary beta-feedback-btn" data-action="feedback">DONNER MON AVIS</button>
+      <div><strong>KizConnect est ouvert à tous les danseurs.</strong><span>Version bêta · Vos retours nous aident à améliorer l’app.</span></div>
+      <button class="secondary beta-feedback-btn" data-action="feedback">💬 Donner mon avis</button>
     </section>
     <div class="home-signature home-signature-compact"><span></span><p><strong>Ouvrir → Choisir → Rechercher → Contacter.</strong></p><span></span></div>`;
 }
@@ -261,7 +261,7 @@ async function searchPartners(form) {
     }
 
     if (!document.querySelector("#partner-results")) return;
-    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}${info}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty">Aucun profil ne correspond à cette recherche.</div>`}`;
+    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}${info}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty"><strong>Aucun partenaire trouvé.</strong><span>Essayez un rayon plus large, une autre ville ou tous les styles.</span></div>`}`;
   } catch {
     target.innerHTML = `<div class="status error">Impossible d'effectuer la recherche pour le moment.</div>`;
   }
@@ -275,7 +275,7 @@ async function loadTraining() {
     const [rows, blockedIds] = await Promise.all([api.listTrainingRequests(), api.listBlockedIds(state.session?.user?.id)]);
     const data = (rows || []).filter(item => !blockedIds.includes(item.owner_id));
     if (!document.querySelector("#training-list")) return;
-    if (!data.length) { target.className = "empty"; target.innerHTML = "Aucune demande de training pour le moment."; return; }
+    if (!data.length) { target.className = "empty"; target.innerHTML = `<strong>Aucun training pour le moment.</strong><span>Vous pouvez publier une demande et être le premier.</span>`; return; }
     target.className = "";
     target.innerHTML = data.map(item => `<article class="card">
       <div class="person-line">${avatar(item.owner)}<div><h3>${escapeHtml(item.owner?.display_name || "Danseur")} cherche un partenaire</h3><div class="meta">📍 ${escapeHtml(item.city)} · 📅 ${escapeHtml(formatDate(item.event_date))}${item.event_time ? ` · 🕒 ${escapeHtml(formatTime(item.event_time))}` : ""}</div></div></div>
@@ -350,7 +350,7 @@ async function searchCarpools(form) {
     ]);
     const data = (rows || []).filter(item => !blockedIds.includes(item.owner_id));
     if (!document.querySelector("#carpool-results")) return;
-    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${data.length} trajet${data.length === 1 ? "" : "s"} trouvé${data.length === 1 ? "" : "s"}.</p></div>${data.length ? data.map(carpoolCard).join("") : `<div class="empty">Aucun trajet ne correspond à votre recherche.</div>`}`;
+    target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${data.length} trajet${data.length === 1 ? "" : "s"} trouvé${data.length === 1 ? "" : "s"}.</p></div>${data.length ? data.map(carpoolCard).join("") : `<div class="empty"><strong>Aucun covoiturage trouvé.</strong><span>Essayez une autre date, un autre départ ou une autre destination.</span></div>`}`;
   } catch {
     target.innerHTML = `<div class="status error">Impossible de charger les trajets.</div>`;
   }
@@ -427,7 +427,7 @@ async function loadThreads() {
   try {
     const rows = await api.listConversations(state.session.user.id);
     if (!document.querySelector("#threads")) return;
-    if (!rows.length) { target.innerHTML = `<div class="empty">Aucune conversation pour le moment.</div>`; return; }
+    if (!rows.length) { target.innerHTML = `<div class="empty"><strong>Aucune conversation pour le moment.</strong><span>Trouvez un partenaire puis envoyez-lui un message.</span></div>`; return; }
     target.innerHTML = rows.map(thread => {
       const other = thread.participant_a === state.session.user.id ? thread.profile_b : thread.profile_a;
       return `<button class="thread-btn card" data-action="open-thread" data-id="${escapeHtml(thread.id)}" data-other="${escapeHtml(other?.id || "")}" data-name="${escapeHtml(other?.display_name || "Danseur")}"><div class="person-line">${avatar(other)}<div><h3>${escapeHtml(other?.display_name || "Danseur")}</h3><div class="meta">${escapeHtml(other?.city || "")} · Ouvrir la conversation</div></div></div></button>`;
@@ -463,7 +463,7 @@ async function loadChat() {
   try {
     const messages = await api.listMessages(state.selectedConversation.id);
     if (!document.querySelector("#chat")) return;
-    target.innerHTML = messages.length ? messages.map(msg => `<div class="bubble ${msg.sender_id === state.session.user.id ? "mine" : "theirs"}" data-message-id="${escapeHtml(msg.id)}">${escapeHtml(msg.body)}</div>`).join("") : `<div class="empty">Aucun message. Vous pouvez commencer la conversation.</div>`;
+    target.innerHTML = messages.length ? messages.map(msg => `<div class="bubble ${msg.sender_id === state.session.user.id ? "mine" : "theirs"}" data-message-id="${escapeHtml(msg.id)}">${escapeHtml(msg.body)}</div>`).join("") : `<div class="empty"><strong>La conversation est prête.</strong><span>Envoyez votre premier message.</span></div>`;
     window.scrollTo(0, document.body.scrollHeight);
     if (stopRealtime) stopRealtime();
     stopRealtime = api.subscribeToMessages(state.selectedConversation.id, appendMessage);
