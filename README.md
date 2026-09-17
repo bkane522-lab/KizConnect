@@ -1,6 +1,6 @@
-# KizConnect V3.2.2 — Mobile First Compact UX
+# KizConnect V3.3 — Bêta terrain
 
-> Cette version conserve le backend, Supabase, la sécurité et les fonctionnalités validées de la V3.2.1. La modification principale est l’accueil mobile : moins de décoration au-dessus de la ligne de flottaison et accès immédiat aux trois actions essentielles.
+> Cette version part de la V3.2.2 validée et intègre les premiers retours de bêta-testeurs : recherche autour d’une ville, collecte structurée des retours et mise à jour PWA visible. Les fonctions existantes restent inchangées.
 
 ### Changement UX principal
 
@@ -18,7 +18,7 @@ Le visuel cristal reste présent dans le header et l’identité générale, mai
 
 Parcours principal : **Ouvrir → Choisir → Rechercher → Contacter.**
 
-## Ce que contient la V3.2.2
+## Ce que contient la V3.3
 
 - accueil limité à 3 actions principales ;
 - navigation sans swipe ni geste caché ;
@@ -27,6 +27,10 @@ Parcours principal : **Ouvrir → Choisir → Rechercher → Contacter.**
 - reprise automatique de l'action après connexion (contacter, publier, messages) ;
 - profil danseur : pseudo, ville, niveau, styles, bio, photo facultative ;
 - recherche partenaire : ville + style + niveau ;
+- recherche par rayon approximatif autour d’une commune française : 5 / 10 / 25 / 50 km ;
+- bouton **Donner mon avis** avec retours enregistrés dans Supabase ;
+- bannière **Nouvelle version disponible → Mettre à jour** pour la PWA ;
+- mention claire : KizConnect est ouvert à tous les danseurs ;
 - demandes de training : publier, consulter, supprimer ;
 - covoiturage : rechercher une offre et proposer des places ;
 - aucune adresse précise rendue publique ;
@@ -56,7 +60,10 @@ Sans variables Supabase, l'interface fonctionne en **mode aperçu**, mais les do
 
 Créer un projet Supabase neuf puis exécuter dans **SQL Editor** :
 
-`supabase/migrations/001_kizconnect_v3.sql`
+1. `supabase/migrations/001_kizconnect_v3.sql`
+2. `supabase/migrations/002_kizconnect_v3_3_beta_feedback.sql`
+
+Si la V3/V3.2 est déjà installée, **ne rejouez pas 001** : exécutez uniquement la migration `002_kizconnect_v3_3_beta_feedback.sql`.
 
 Ensuite renseigner `.env` :
 
@@ -100,7 +107,7 @@ npm run build
 
 le dossier `dist/` peut être déployé sur Vercel ou un hébergeur statique compatible PWA.
 
-## Ce qui n'est volontairement pas dans la V3.2.2
+## Ce qui n'est volontairement pas dans la V3.3
 
 - followers ;
 - likes ;
@@ -167,3 +174,11 @@ Si la V3/V3.1 fonctionne déjà sur votre projet Supabase, **ne réexécutez pas
 Cette version ne modifie ni Supabase ni les fonctionnalités validées. Elle réorganise l’accueil pour que **Trouver un partenaire**, **Covoiturage** et **Mes messages** soient visibles immédiatement à l’ouverture sur les écrans courants, sans devoir faire défiler un grand hero. Le bouton intermédiaire « Commencer » a été supprimé : l’utilisateur choisit directement son besoin.
 
 Si votre base V3 fonctionne déjà, **ne réexécutez pas la migration SQL**.
+
+## V3.3 — premiers retours bêta
+
+- Le rayon de recherche est calculé côté client à partir du centre des communes grâce à l’API officielle `geo.api.gouv.fr`. La distance affichée est donc approximative et, dans cette bêta, le rayon est conçu pour les communes françaises.
+- Aucun GPS permanent n’est demandé.
+- Un échec du service géographique n’empêche pas l’usage de la recherche « Ville exacte ».
+- Les retours bêta sont privés et liés au compte uniquement pour limiter le spam.
+- La V3.3 ajoute une migration Supabase **002**.
