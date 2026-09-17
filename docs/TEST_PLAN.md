@@ -67,3 +67,13 @@ Ce plan nécessite un vrai projet Supabase et deux comptes de test distincts, pa
 ## Validation finale
 
 La V3 peut être considérée comme bêta validée seulement lorsque tous les tests ci-dessus passent sur le projet Supabase destiné à la bêta.
+
+
+## V3.3 — tests complémentaires
+
+1. Rechercher un profil avec « Ville exacte ».
+2. Rechercher la même zone avec 5, 10, 25 et 50 km et vérifier l’ordre approximatif des distances.
+3. Tester une commune française inconnue / mal orthographiée : un message compréhensible doit s’afficher.
+4. Envoyer un retour via « Donner mon avis » avec un compte connecté puis vérifier `beta_feedback` dans Supabase.
+5. Tenter deux retours en moins de 45 secondes : le second doit être refusé.
+6. Déployer une nouvelle version du service worker et vérifier l’affichage de « Nouvelle version disponible ».
