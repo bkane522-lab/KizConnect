@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.6.0";
+const APP_VERSION = "3.6.1";
 
 const state = {
   screen: "home",
@@ -203,32 +203,34 @@ function homeView() {
 function partnersView() {
   return `${pageHead("Trouver un partenaire", "Recherchez simplement autour de vous.")}
     ${statusBlock()}
-    <form class="form-card" id="partner-search-form">
+    <form class="form-card partner-search-card" id="partner-search-form">
       <div class="field"><label for="partner-city">📍 Ville</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
-      <fieldset class="field filter-field"><legend>📏 Rayon autour de la ville</legend><div class="filter-chips" data-filter-group="radius" data-filter-mode="single" aria-label="Rayon autour de la ville"><button type="button" class="filter-chip is-selected" data-filter-value="0" aria-pressed="true">Ville exacte</button><button type="button" class="filter-chip" data-filter-value="5" aria-pressed="false">5 km</button><button type="button" class="filter-chip" data-filter-value="10" aria-pressed="false">10 km</button><button type="button" class="filter-chip" data-filter-value="25" aria-pressed="false">25 km</button><button type="button" class="filter-chip" data-filter-value="50" aria-pressed="false">50 km</button></div><div class="help">Le rayon utilise le centre des communes françaises. La distance est approximative.</div></fieldset>
-      <fieldset class="field filter-field"><legend>💃 Styles recherchés</legend><div class="filter-chips" data-filter-group="styles" data-filter-mode="multi" aria-label="Styles de danse recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${DANCE_STYLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Vous pouvez choisir plusieurs styles.</div></fieldset>
-      <fieldset class="field filter-field"><legend>🎯 Niveaux recherchés</legend><div class="filter-chips" data-filter-group="levels" data-filter-mode="multi" aria-label="Niveaux recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${LEVELS.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Vous pouvez choisir plusieurs niveaux.</div></fieldset>
-      <fieldset class="field filter-field"><legend>↔️ Rôles recherchés</legend><div class="filter-chips" data-filter-group="roles" data-filter-mode="multi" aria-label="Rôles recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Peu importe</button>${DANCE_ROLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Facultatif · Plusieurs rôles peuvent être sélectionnés.</div></fieldset>
-      <button class="primary" type="submit">RECHERCHER</button>
+      <fieldset class="field filter-field"><legend>📏 Rayon</legend><div class="filter-chips" data-filter-group="radius" data-filter-mode="single" aria-label="Rayon autour de la ville"><button type="button" class="filter-chip is-selected" data-filter-value="0" aria-pressed="true">Ville exacte</button><button type="button" class="filter-chip" data-filter-value="5" aria-pressed="false">5 km</button><button type="button" class="filter-chip" data-filter-value="10" aria-pressed="false">10 km</button><button type="button" class="filter-chip" data-filter-value="25" aria-pressed="false">25 km</button><button type="button" class="filter-chip" data-filter-value="50" aria-pressed="false">50 km</button></div><div class="help compact-help">Distance approximative depuis le centre de la commune.</div></fieldset>
+      <fieldset class="field filter-field"><legend>💃 Styles</legend><div class="filter-chips" data-filter-group="styles" data-filter-mode="multi" aria-label="Styles de danse recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${DANCE_STYLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <fieldset class="field filter-field"><legend>🎯 Niveaux</legend><div class="filter-chips" data-filter-group="levels" data-filter-mode="multi" aria-label="Niveaux recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${LEVELS.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <fieldset class="field filter-field"><legend>↔️ Rôles</legend><div class="filter-chips" data-filter-group="roles" data-filter-mode="multi" aria-label="Rôles recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Peu importe</button>${DANCE_ROLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <div class="partner-search-sticky"><button class="primary" type="submit">RECHERCHER</button></div>
     </form>
-    <section class="mutual-card" aria-labelledby="mutual-title">
+    <div id="partner-results" class="partner-results"></div>
+    <section class="mutual-card mutual-card-compact" aria-labelledby="mutual-title">
       <div class="mutual-icon" aria-hidden="true">✨</div>
       <div class="mutual-copy">
         <span class="eyebrow">OPTIONNEL · PRIVÉ</span>
         <h3 id="mutual-title">Connexion training</h3>
-        <p>Indiquez discrètement avec qui vous aimeriez essayer un training. Aucun refus n'est affiché : vous êtes prévenus seulement si le choix est réciproque.</p>
+        <p>Choix privé. Vous êtes prévenu uniquement si l'intérêt est réciproque.</p>
         ${state.session
           ? (state.profile?.training_match_enabled
             ? `<div id="training-matches" class="mutual-matches"><div class="empty compact-empty">Recherche de vos connexions mutuelles…</div></div>`
-            : `<button class="secondary compact-btn" data-action="enable-training-match">ACTIVER DANS MON PROFIL</button>`)
-          : `<button class="secondary compact-btn" data-action="training-match-login">ME CONNECTER POUR PARTICIPER</button>`}
+            : `<button class="secondary compact-btn" data-action="enable-training-match">ACTIVER</button>`)
+          : `<button class="secondary compact-btn" data-action="training-match-login">ME CONNECTER</button>`}
       </div>
     </section>
-    <div id="partner-results"></div>
-    <div class="section-title"><h3>Vous cherchez un training précis ?</h3><p>Publiez une demande avec une date et une heure.</p></div>
-    <button class="secondary" data-action="training-create">PUBLIER UNE DEMANDE DE TRAINING</button>
-    <div class="section-title"><h3>Demandes de training</h3><p>Les prochaines demandes apparaissent ici.</p></div>
-    <div id="training-list" class="empty">Chargement des demandes…</div>`;
+    <section class="training-date-section">
+      <div class="section-title"><h3>📅 Training avec date</h3><p>Publiez une demande avec une date et une heure.</p></div>
+      <button class="secondary" data-action="training-create">PUBLIER UNE DEMANDE DE TRAINING</button>
+      <div class="section-title"><h3>Demandes de training</h3><p>Les prochaines demandes apparaissent ici.</p></div>
+      <div id="training-list" class="empty">Chargement des demandes…</div>
+    </section>`;
 }
 
 function profileCard(profile) {
@@ -331,6 +333,7 @@ async function searchPartners(form) {
 
     if (!document.querySelector("#partner-results")) return;
     target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}${info}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty"><strong>Aucun partenaire trouvé.</strong><span>Essayez un rayon plus large, une autre ville ou tous les styles.</span></div>`}`;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch {
     target.innerHTML = `<div class="status error">Impossible d'effectuer la recherche pour le moment.</div>`;
   }

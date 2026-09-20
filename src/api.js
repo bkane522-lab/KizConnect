@@ -300,7 +300,7 @@ export async function listTrainingMatches() {
   return resultOrThrow(await supabase.rpc("list_training_matches"));
 }
 
-export async function submitBetaFeedback({ userId, category, message, appVersion = "3.5.0" }) {
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.6.1" }) {
   needSupabase();
   return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
     feedback_category: category,
