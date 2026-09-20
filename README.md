@@ -1,26 +1,32 @@
-## V3.6.1 — Rapidité UX
+## V3.6.2 — Simple UX
 
-Cette version conserve toute la V3.6 et compacte le parcours **Trouver un partenaire**.
+Cette version ne rajoute aucune fonctionnalité. Elle simplifie **Trouver un partenaire** pour que le parcours soit compris immédiatement.
 
-- bouton **RECHERCHER** sticky sur mobile pendant le choix des filtres ;
-- titres raccourcis : Rayon, Styles, Niveaux, Rôles ;
-- textes d'aide répétitifs supprimés ;
-- résultats placés immédiatement après la recherche et scroll automatique vers eux ;
-- **Connexion training** rendue plus compacte ;
-- section **Training avec date** visuellement séparée ;
-- aucune nouvelle migration Supabase par rapport à la V3.6.
+- un seul bouton **RECHERCHER**, sans bouton sticky qui masque les filtres ;
+- ordre direct : **Où ? → Rayon → Styles → Niveaux → Rôles → Rechercher** ;
+- résultats placés immédiatement sous le formulaire ;
+- textes d'aide non indispensables supprimés ;
+- **Connexion training privée** transformée en petite option secondaire ;
+- **Trainings organisés** séparés clairement de la recherche partenaire ;
+- aucune nouvelle migration Supabase.
 
-# KizConnect V3.6.1
+# KizConnect V3.6.2
 
 **KizConnect — Trouvez avec qui danser.**
 
-## Fonctionnalités principales
+## Principe UX
+
+Ouvrir → choisir → rechercher → contacter.
+
+Les actions principales restent visibles et explicites. Les fonctions secondaires viennent après les résultats.
+
+## Fonctionnalités conservées
 
 - recherche partenaire par ville et rayon 5 / 10 / 25 / 50 km ;
 - multi-sélection des styles, niveaux et rôles ;
 - profil avec rôle Leader / Follower / Les deux ;
 - Connexion training mutuelle et privée ;
-- demandes de training datées ;
+- trainings organisés ;
 - covoiturage ;
 - messagerie privée ;
 - blocage et signalement ;
@@ -30,7 +36,7 @@ Cette version conserve toute la V3.6 et compacte le parcours **Trouver un parten
 
 ## Supabase
 
-Aucune nouvelle migration pour V3.6.1. Conservez les migrations `001` à `004` déjà installées. Ne les rejouez pas si elles ont déjà été exécutées.
+Aucune nouvelle migration pour V3.6.2. Conservez les migrations `001` à `004` déjà installées.
 
 ## Installation locale
 
@@ -40,18 +46,9 @@ cp .env.example .env
 npm run dev
 ```
 
-Variables nécessaires :
-
-```env
-VITE_SUPABASE_URL=https://xxxxx.supabase.co
-VITE_SUPABASE_ANON_KEY=...
-```
-
 ## Tests
 
 ```bash
 npm run check
 npm run build
 ```
-
-Voir aussi `docs/TEST_PLAN.md` et `docs/SECURITY.md`.
