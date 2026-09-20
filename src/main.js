@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.5.0";
+const APP_VERSION = "3.6.0";
 
 const state = {
   screen: "home",
@@ -205,10 +205,10 @@ function partnersView() {
     ${statusBlock()}
     <form class="form-card" id="partner-search-form">
       <div class="field"><label for="partner-city">📍 Ville</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
-      <div class="field"><label for="partner-radius">📏 Rayon autour de la ville</label><select id="partner-radius" name="radius"><option value="0">Ville exacte</option><option value="5">+ 5 km</option><option value="10">+ 10 km</option><option value="25">+ 25 km</option><option value="50">+ 50 km</option></select><div class="help">Le rayon utilise le centre des communes françaises. La distance est approximative.</div></div>
-      <div class="field"><label for="partner-style">💃 Style de danse</label><select id="partner-style" name="style"><option value="">Tous les styles</option>${DANCE_STYLES.map(x => `<option>${x}</option>`).join("")}</select></div>
-      <div class="field"><label for="partner-level">🎯 Niveau</label><select id="partner-level" name="level"><option value="">Tous les niveaux</option>${LEVELS.map(x => `<option>${x}</option>`).join("")}</select></div>
-      <div class="field"><label for="partner-role">↔️ Je cherche</label><select id="partner-role" name="dance_role"><option value="">Peu importe le rôle</option>${DANCE_ROLES.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")}</select><div class="help">Facultatif · Leader, Follower ou une personne qui pratique les deux rôles.</div></div>
+      <fieldset class="field filter-field"><legend>📏 Rayon autour de la ville</legend><div class="filter-chips" data-filter-group="radius" data-filter-mode="single" aria-label="Rayon autour de la ville"><button type="button" class="filter-chip is-selected" data-filter-value="0" aria-pressed="true">Ville exacte</button><button type="button" class="filter-chip" data-filter-value="5" aria-pressed="false">5 km</button><button type="button" class="filter-chip" data-filter-value="10" aria-pressed="false">10 km</button><button type="button" class="filter-chip" data-filter-value="25" aria-pressed="false">25 km</button><button type="button" class="filter-chip" data-filter-value="50" aria-pressed="false">50 km</button></div><div class="help">Le rayon utilise le centre des communes françaises. La distance est approximative.</div></fieldset>
+      <fieldset class="field filter-field"><legend>💃 Styles recherchés</legend><div class="filter-chips" data-filter-group="styles" data-filter-mode="multi" aria-label="Styles de danse recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${DANCE_STYLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Vous pouvez choisir plusieurs styles.</div></fieldset>
+      <fieldset class="field filter-field"><legend>🎯 Niveaux recherchés</legend><div class="filter-chips" data-filter-group="levels" data-filter-mode="multi" aria-label="Niveaux recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${LEVELS.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Vous pouvez choisir plusieurs niveaux.</div></fieldset>
+      <fieldset class="field filter-field"><legend>↔️ Rôles recherchés</legend><div class="filter-chips" data-filter-group="roles" data-filter-mode="multi" aria-label="Rôles recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Peu importe</button>${DANCE_ROLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div><div class="help">Facultatif · Plusieurs rôles peuvent être sélectionnés.</div></fieldset>
       <button class="primary" type="submit">RECHERCHER</button>
     </form>
     <section class="mutual-card" aria-labelledby="mutual-title">
@@ -241,6 +241,55 @@ function profileCard(profile) {
   </article>`;
 }
 
+function getSelectedFilterValues(form, groupName) {
+  return [...form.querySelectorAll(`[data-filter-group="${groupName}"] .filter-chip[aria-pressed="true"]`)]
+    .map(button => button.dataset.filterValue || "")
+    .filter(Boolean);
+}
+
+function wireFilterChips() {
+  document.querySelectorAll("[data-filter-group]").forEach(group => {
+    const mode = group.dataset.filterMode || "multi";
+    const buttons = [...group.querySelectorAll(".filter-chip")];
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        const value = button.dataset.filterValue || "";
+        if (mode === "single") {
+          buttons.forEach(item => {
+            const selected = item === button;
+            item.classList.toggle("is-selected", selected);
+            item.setAttribute("aria-pressed", String(selected));
+          });
+          return;
+        }
+
+        const allButton = buttons.find(item => !(item.dataset.filterValue || ""));
+        if (!value) {
+          buttons.forEach(item => {
+            const selected = item === button;
+            item.classList.toggle("is-selected", selected);
+            item.setAttribute("aria-pressed", String(selected));
+          });
+          return;
+        }
+
+        const selected = button.getAttribute("aria-pressed") !== "true";
+        button.classList.toggle("is-selected", selected);
+        button.setAttribute("aria-pressed", String(selected));
+        if (allButton) {
+          allButton.classList.remove("is-selected");
+          allButton.setAttribute("aria-pressed", "false");
+        }
+        const activeSpecific = buttons.some(item => (item.dataset.filterValue || "") && item.getAttribute("aria-pressed") === "true");
+        if (!activeSpecific && allButton) {
+          allButton.classList.add("is-selected");
+          allButton.setAttribute("aria-pressed", "true");
+        }
+      });
+    });
+  });
+}
+
 async function searchPartners(form) {
   const target = document.querySelector("#partner-results");
   if (!target) return;
@@ -252,14 +301,14 @@ async function searchPartners(form) {
   try {
     const formData = new FormData(form);
     const city = String(formData.get("city") || "").trim();
-    const radius = Number(formData.get("radius") || 0);
-    const style = formData.get("style") || "";
-    const level = formData.get("level") || "";
-    const danceRole = formData.get("dance_role") || "";
+    const radius = Number(getSelectedFilterValues(form, "radius")[0] || 0);
+    const styles = getSelectedFilterValues(form, "styles");
+    const levels = getSelectedFilterValues(form, "levels");
+    const danceRoles = getSelectedFilterValues(form, "roles");
     const useRadius = Boolean(city && radius > 0);
 
     const [profiles, blockedIds] = await Promise.all([
-      api.searchPartners({ city, style, level, danceRole, broad: useRadius }),
+      api.searchPartners({ city, styles, levels, danceRoles, broad: useRadius }),
       api.listBlockedIds(state.session?.user?.id)
     ]);
 
@@ -691,6 +740,7 @@ function render() {
 }
 
 function wireForms() {
+  wireFilterChips();
   document.querySelector("#partner-search-form")?.addEventListener("submit", event => { event.preventDefault(); searchPartners(event.currentTarget); });
   document.querySelector("#carpool-search-form")?.addEventListener("submit", event => { event.preventDefault(); searchCarpools(event.currentTarget); });
 

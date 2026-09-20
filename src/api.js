@@ -102,7 +102,7 @@ export async function uploadAvatar(userId, file) {
   return `${data.publicUrl}?v=${Date.now()}`;
 }
 
-export async function searchPartners({ city = "", style = "", level = "", danceRole = "", broad = false }) {
+export async function searchPartners({ city = "", styles = [], levels = [], danceRoles = [], broad = false }) {
   needSupabase();
   let query = supabase
     .from("profiles")
@@ -110,11 +110,13 @@ export async function searchPartners({ city = "", style = "", level = "", danceR
     .eq("is_visible", true)
     .limit(broad ? 120 : 50);
   if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
-  if (style) query = query.contains("styles", [style]);
-  if (level) query = query.eq("level", level);
-  if (danceRole === "Leader") query = query.in("dance_role", ["Leader", "Les deux"]);
-  if (danceRole === "Follower") query = query.in("dance_role", ["Follower", "Les deux"]);
-  if (danceRole === "Les deux") query = query.eq("dance_role", "Les deux");
+  if (styles.length) query = query.overlaps("styles", styles);
+  if (levels.length) query = query.in("level", levels);
+  if (danceRoles.length) {
+    const acceptedRoles = new Set(danceRoles);
+    if (danceRoles.includes("Leader") || danceRoles.includes("Follower")) acceptedRoles.add("Les deux");
+    query = query.in("dance_role", [...acceptedRoles]);
+  }
   return resultOrThrow(await query.order("updated_at", { ascending: false }));
 }
 
