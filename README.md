@@ -1,28 +1,26 @@
+## V3.6.1 — Rapidité UX
 
-## V3.6 — Recherche partenaire plus directe
+Cette version conserve toute la V3.6 et compacte le parcours **Trouver un partenaire**.
 
-La recherche partenaire n’utilise plus les menus déroulants natifs pour les filtres principaux.
+- bouton **RECHERCHER** sticky sur mobile pendant le choix des filtres ;
+- titres raccourcis : Rayon, Styles, Niveaux, Rôles ;
+- textes d'aide répétitifs supprimés ;
+- résultats placés immédiatement après la recherche et scroll automatique vers eux ;
+- **Connexion training** rendue plus compacte ;
+- section **Training avec date** visuellement séparée ;
+- aucune nouvelle migration Supabase par rapport à la V3.6.
 
-- rayon visible : Ville exacte, 5, 10, 25 ou 50 km ;
-- plusieurs styles peuvent être sélectionnés ;
-- plusieurs niveaux peuvent être sélectionnés ;
-- plusieurs rôles peuvent être sélectionnés ;
-- le choix `Tous` / `Peu importe` se réactive automatiquement si aucun filtre spécifique n’est sélectionné ;
-- aucune nouvelle migration Supabase n’est nécessaire par rapport à la V3.5.
-
-# KizConnect V3.6 — rôles de danse
+# KizConnect V3.6.1
 
 **KizConnect — Trouvez avec qui danser.**
 
-V3.5 conserve les fonctions validées de la bêta et ajoute un retour utilisateur simple : le rôle de danse **Leader / Follower / Les deux**. Le rôle reste facultatif et n'est jamais associé au genre.
-
 ## Fonctionnalités principales
 
-- recherche partenaire par ville, rayon, style, niveau et rôle facultatif ;
-- rayon 5 / 10 / 25 / 50 km autour d'une commune française ;
-- profil : pseudo, ville, niveau, styles, rôle, bio, photo facultative ;
+- recherche partenaire par ville et rayon 5 / 10 / 25 / 50 km ;
+- multi-sélection des styles, niveaux et rôles ;
+- profil avec rôle Leader / Follower / Les deux ;
 - Connexion training mutuelle et privée ;
-- demandes de training ;
+- demandes de training datées ;
 - covoiturage ;
 - messagerie privée ;
 - blocage et signalement ;
@@ -30,27 +28,9 @@ V3.5 conserve les fonctions validées de la bêta et ajoute un retour utilisateu
 - PWA avec détection de mise à jour ;
 - Supabase Auth + RLS.
 
-## Rôle de danse
+## Supabase
 
-Dans **Mon profil**, l'utilisateur peut laisser le champ vide ou choisir :
-
-- `Leader`
-- `Follower`
-- `Les deux`
-
-Dans **Trouver un partenaire**, le filtre est également facultatif :
-
-- une recherche `Leader` inclut `Leader` + `Les deux` ;
-- une recherche `Follower` inclut `Follower` + `Les deux` ;
-- une recherche `Les deux` vise uniquement les profils `Les deux`.
-
-## Mise à jour depuis V3.4
-
-Conserver les migrations déjà exécutées et lancer **une seule fois** :
-
-`supabase/migrations/004_kizconnect_v3_5_dance_role.sql`
-
-Ne rejouez pas `001`, `002` ou `003` si elles sont déjà installées.
+Aucune nouvelle migration pour V3.6.1. Conservez les migrations `001` à `004` déjà installées. Ne les rejouez pas si elles ont déjà été exécutées.
 
 ## Installation locale
 
