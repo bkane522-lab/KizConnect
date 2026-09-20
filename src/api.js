@@ -54,7 +54,7 @@ export async function getOwnProfile(userId) {
   needSupabase();
   return resultOrThrow(await supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
+    .select("id,display_name,city,level,dance_role,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
     .eq("id", userId)
     .single());
 }
@@ -63,7 +63,7 @@ export async function getPublicProfile(userId) {
   needSupabase();
   return resultOrThrow(await supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url,training_match_enabled")
+    .select("id,display_name,city,level,dance_role,styles,bio,avatar_url,training_match_enabled")
     .eq("id", userId)
     .eq("is_visible", true)
     .single());
@@ -75,7 +75,7 @@ export async function updateOwnProfile(userId, payload) {
     .from("profiles")
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq("id", userId)
-    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
+    .select("id,display_name,city,level,dance_role,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
     .single());
 }
 
@@ -102,16 +102,19 @@ export async function uploadAvatar(userId, file) {
   return `${data.publicUrl}?v=${Date.now()}`;
 }
 
-export async function searchPartners({ city = "", style = "", level = "", broad = false }) {
+export async function searchPartners({ city = "", style = "", level = "", danceRole = "", broad = false }) {
   needSupabase();
   let query = supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url,training_match_enabled,updated_at")
+    .select("id,display_name,city,level,dance_role,styles,bio,avatar_url,training_match_enabled,updated_at")
     .eq("is_visible", true)
     .limit(broad ? 120 : 50);
   if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
   if (style) query = query.contains("styles", [style]);
   if (level) query = query.eq("level", level);
+  if (danceRole === "Leader") query = query.in("dance_role", ["Leader", "Les deux"]);
+  if (danceRole === "Follower") query = query.in("dance_role", ["Follower", "Les deux"]);
+  if (danceRole === "Les deux") query = query.eq("dance_role", "Les deux");
   return resultOrThrow(await query.order("updated_at", { ascending: false }));
 }
 
@@ -295,7 +298,7 @@ export async function listTrainingMatches() {
   return resultOrThrow(await supabase.rpc("list_training_matches"));
 }
 
-export async function submitBetaFeedback({ userId, category, message, appVersion = "3.4.0" }) {
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.5.0" }) {
   needSupabase();
   return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
     feedback_category: category,

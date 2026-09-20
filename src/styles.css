@@ -1269,3 +1269,10 @@ label { color: #fcf6ff; }
 .home-match-alert div { display:flex; flex-direction:column; gap:2px; }
 .home-match-alert small { color:var(--muted); font-size:.82rem; }
 .home-match-alert b { font-size:1.2rem; color:#c7a5ff; }
+
+
+/* V3.5 — rôle de danse */
+.role-tag {
+  border-color: rgba(217, 178, 111, .42);
+  background: linear-gradient(135deg, rgba(217,178,111,.13), rgba(151,71,255,.12));
+}

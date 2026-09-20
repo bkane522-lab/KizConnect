@@ -1,11 +1,11 @@
 import "./styles.css";
 import * as api from "./api.js";
-import { DANCE_STYLES, LEVELS, REPORT_CATEGORIES } from "./config.js";
+import { DANCE_STYLES, LEVELS, DANCE_ROLES, REPORT_CATEGORIES } from "./config.js";
 import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.4.0";
+const APP_VERSION = "3.5.0";
 
 const state = {
   screen: "home",
@@ -208,6 +208,7 @@ function partnersView() {
       <div class="field"><label for="partner-radius">📏 Rayon autour de la ville</label><select id="partner-radius" name="radius"><option value="0">Ville exacte</option><option value="5">+ 5 km</option><option value="10">+ 10 km</option><option value="25">+ 25 km</option><option value="50">+ 50 km</option></select><div class="help">Le rayon utilise le centre des communes françaises. La distance est approximative.</div></div>
       <div class="field"><label for="partner-style">💃 Style de danse</label><select id="partner-style" name="style"><option value="">Tous les styles</option>${DANCE_STYLES.map(x => `<option>${x}</option>`).join("")}</select></div>
       <div class="field"><label for="partner-level">🎯 Niveau</label><select id="partner-level" name="level"><option value="">Tous les niveaux</option>${LEVELS.map(x => `<option>${x}</option>`).join("")}</select></div>
+      <div class="field"><label for="partner-role">↔️ Je cherche</label><select id="partner-role" name="dance_role"><option value="">Peu importe le rôle</option>${DANCE_ROLES.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("")}</select><div class="help">Facultatif · Leader, Follower ou une personne qui pratique les deux rôles.</div></div>
       <button class="primary" type="submit">RECHERCHER</button>
     </form>
     <section class="mutual-card" aria-labelledby="mutual-title">
@@ -235,7 +236,7 @@ function profileCard(profile) {
   const distance = Number.isFinite(profile._distanceKm) ? ` · ≈ ${Math.max(1, Math.round(profile._distanceKm))} km` : "";
   return `<article class="card">
     <div class="person-line">${avatar(profile)}<div><h3>${escapeHtml(profile.display_name || "Danseur")}</h3><div class="meta">📍 ${escapeHtml(profile.city || "Ville non indiquée")}${distance} · ${escapeHtml(profile.level || "Niveau non indiqué")}</div></div></div>
-    <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}${profile.training_match_enabled ? `<span class="tag mutual-tag">✨ Connexion training</span>` : ""}</div>
+    <div class="tags">${profile.dance_role ? `<span class="tag role-tag">↔️ ${escapeHtml(profile.dance_role)}</span>` : ""}${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}${profile.training_match_enabled ? `<span class="tag mutual-tag">✨ Connexion training</span>` : ""}</div>
     <button class="secondary top-gap" data-action="view-profile" data-id="${escapeHtml(profile.id)}">VOIR LE PROFIL</button>
   </article>`;
 }
@@ -254,10 +255,11 @@ async function searchPartners(form) {
     const radius = Number(formData.get("radius") || 0);
     const style = formData.get("style") || "";
     const level = formData.get("level") || "";
+    const danceRole = formData.get("dance_role") || "";
     const useRadius = Boolean(city && radius > 0);
 
     const [profiles, blockedIds] = await Promise.all([
-      api.searchPartners({ city, style, level, broad: useRadius }),
+      api.searchPartners({ city, style, level, danceRole, broad: useRadius }),
       api.listBlockedIds(state.session?.user?.id)
     ]);
 
@@ -483,6 +485,7 @@ function ownProfileView() {
       <div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" value="${escapeHtml(state.profile?.display_name || "")}" /></div>
       <div class="field"><label>Ville</label><input name="city" required maxlength="80" value="${escapeHtml(state.profile?.city || "")}" /></div>
       <div class="field"><label>Niveau</label><select name="level"><option value="">Choisir</option>${LEVELS.map(x => `<option ${state.profile?.level === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
+      <div class="field"><label>Rôle dans la danse <span class="help">(facultatif)</span></label><select name="dance_role"><option value="">Non précisé</option>${DANCE_ROLES.map(x => `<option value="${escapeHtml(x)}" ${state.profile?.dance_role === x ? "selected" : ""}>${escapeHtml(x)}</option>`).join("")}</select><div class="help">Leader, Follower ou Les deux. Ce choix n'est jamais lié au genre.</div></div>
       <fieldset class="field fieldset"><legend>Styles pratiqués</legend>${DANCE_STYLES.map(style => `<label class="check-row"><input type="checkbox" name="styles" value="${escapeHtml(style)}" ${styles.includes(style) ? "checked" : ""}/> <span>${escapeHtml(style)}</span></label>`).join("")}</fieldset>
       <div class="field"><label>Courte présentation <span class="help">(facultatif)</span></label><textarea name="bio" maxlength="500">${escapeHtml(state.profile?.bio || "")}</textarea></div>
       <label class="check-row visibility-row"><input type="checkbox" name="is_visible" ${state.profile?.is_visible !== false ? "checked" : ""} /><span>Profil visible dans les recherches</span></label>
@@ -502,7 +505,7 @@ function publicProfileView() {
     ${statusBlock()}
     <article class="card profile-card">
       <div class="person-line">${avatar(p, "large")}<div><h2>${escapeHtml(p.display_name)}</h2><div class="meta">📍 ${escapeHtml(p.city || "Ville non indiquée")} · ${escapeHtml(p.level || "Niveau non indiqué")}</div></div></div>
-      <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}</div>
+      <div class="tags">${p.dance_role ? `<span class="tag role-tag">↔️ ${escapeHtml(p.dance_role)}</span>` : ""}${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}</div>
       ${p.bio ? `<div class="divider"></div><p class="profile-bio">${escapeHtml(p.bio)}</p>` : ""}
       ${p.training_match_enabled ? (() => {
         const interested = state.trainingInterestIds.includes(p.id);
@@ -777,6 +780,7 @@ function wireForms() {
         display_name: String(fd.get("display_name") || "").trim(),
         city: String(fd.get("city") || "").trim(),
         level: fd.get("level") || null,
+        dance_role: fd.get("dance_role") || null,
         styles: fd.getAll("styles"),
         bio: String(fd.get("bio") || "").trim() || null,
         avatar_url: avatarUrl,

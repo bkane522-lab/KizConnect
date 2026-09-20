@@ -1,5 +1,6 @@
 export const DANCE_STYLES = ["Kizomba", "Urban Kiz", "Semba", "Tarraxo", "Tarraxinha"];
 export const LEVELS = ["Débutant", "Intermédiaire", "Avancé"];
+export const DANCE_ROLES = ["Leader", "Follower", "Les deux"];
 export const REPORT_CATEGORIES = [
   ["harassment", "Comportement inapproprié"],
   ["spam", "Spam"],
