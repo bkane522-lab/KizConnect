@@ -1222,3 +1222,50 @@ label { color: #fcf6ff; }
   .beta-note { align-items: flex-start; }
   .beta-feedback-btn { align-self: flex-start; }
 }
+
+
+/* V3.4 — Connexion training mutuelle */
+.mutual-card {
+  margin: 18px 0 22px;
+  padding: 18px;
+  border: 1px solid rgba(187, 129, 255, .28);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(82, 32, 118, .22), rgba(15, 12, 29, .82));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 16px 38px rgba(0,0,0,.18);
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.mutual-icon { width: 44px; height: 44px; display:grid; place-items:center; border-radius:14px; background:rgba(155,92,255,.14); font-size:22px; box-shadow:0 0 24px rgba(148,73,255,.16); }
+.mutual-copy h3 { margin: 3px 0 6px; font-size: 1.08rem; }
+.mutual-copy p { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+.compact-btn { width:auto; min-height:42px; padding:10px 14px; }
+.mutual-matches { margin-top: 12px; }
+.compact-empty { min-height: 0; padding: 13px 14px; }
+.mutual-success { display:flex; flex-direction:column; gap:3px; margin-bottom:10px; padding:11px 13px; border-radius:14px; background:rgba(127,255,198,.08); border:1px solid rgba(127,255,198,.18); }
+.mutual-success span { color:var(--muted); font-size:.9rem; }
+.mutual-match-row { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; padding:10px 0; border-top:1px solid rgba(255,255,255,.06); }
+.mutual-match-row div:nth-child(2) { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.mutual-match-row div:nth-child(2) span { color:var(--muted); font-size:.86rem; }
+.mutual-tag { border-color:rgba(208,158,255,.35); background:rgba(154,89,255,.12); }
+.mutual-setting { margin: 6px 0 16px; padding:14px; border-radius:16px; border:1px solid rgba(190,132,255,.2); background:rgba(124,70,180,.08); }
+.mutual-setting small { display:block; margin-top:3px; color:var(--muted); line-height:1.35; font-weight:400; }
+.mutual-profile-panel { margin:18px 0 4px; padding:16px; border-radius:18px; border:1px solid rgba(189,132,255,.28); background:linear-gradient(145deg, rgba(97,43,137,.2), rgba(17,13,30,.8)); }
+.mutual-profile-panel p { margin:7px 0 12px; color:var(--muted); line-height:1.45; }
+.mutual-profile-panel.matched { border-color:rgba(131,255,200,.28); background:linear-gradient(145deg, rgba(40,116,89,.16), rgba(17,13,30,.8)); }
+.mutual-profile-panel.matched strong { display:block; margin-top:5px; font-size:1.08rem; }
+@media (max-width: 640px) {
+  .mutual-card { grid-template-columns: 36px 1fr; padding:14px; border-radius:18px; gap:10px; }
+  .mutual-icon { width:36px; height:36px; border-radius:12px; font-size:18px; }
+  .mutual-match-row { grid-template-columns:auto 1fr; }
+  .mutual-match-row .small-action { grid-column:1 / -1; width:100%; }
+}
+
+.home-match-alert {
+  width:100%; margin:14px 0 4px; padding:13px 15px; border:1px solid rgba(130,255,200,.24); border-radius:18px; background:linear-gradient(120deg, rgba(37,116,85,.16), rgba(92,46,139,.16)); color:var(--text); display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:11px; text-align:left; cursor:pointer; box-shadow:0 12px 30px rgba(0,0,0,.16);
+}
+.home-match-alert > span { font-size:1.35rem; }
+.home-match-alert div { display:flex; flex-direction:column; gap:2px; }
+.home-match-alert small { color:var(--muted); font-size:.82rem; }
+.home-match-alert b { font-size:1.2rem; color:#c7a5ff; }

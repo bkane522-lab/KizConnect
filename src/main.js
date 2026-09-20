@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.3.1";
+const APP_VERSION = "3.4.0";
 
 const state = {
   screen: "home",
@@ -17,6 +17,8 @@ const state = {
   reportTarget: null,
   authMode: "signup",
   authReason: "",
+  trainingInterestIds: [],
+  trainingMatches: [],
   notice: "",
   error: ""
 };
@@ -99,6 +101,8 @@ async function executePendingAction(action) {
   if (action.type === "message-user") { await openConversation(action.userId, action.draft || ""); return true; }
   if (action.type === "report-user") { state.reportTarget = { id: action.userId, name: action.name || "ce profil" }; go("report"); return true; }
   if (action.type === "feedback") { go("feedback"); return true; }
+  if (action.type === "training-interest") { await handleTrainingInterest(action.userId, true); return true; }
+  if (action.type === "enable-training-match") { setFlash("Activez « Connexion training » puis enregistrez votre profil."); go("profile", { preserveFlash: true }); return true; }
   return false;
 }
 
@@ -188,6 +192,7 @@ function homeView() {
         </div>
       </section>
     </section>
+    ${state.session && state.profile?.training_match_enabled ? `<div id="home-training-match-alert"></div>` : ""}
     <section class="beta-note" aria-label="Version bêta">
       <div><strong>KizConnect est ouvert à tous les danseurs.</strong><span>Version bêta · Vos retours nous aident à améliorer l’app.</span></div>
       <button class="secondary beta-feedback-btn" data-action="feedback">💬 Donner mon avis</button>
@@ -205,6 +210,19 @@ function partnersView() {
       <div class="field"><label for="partner-level">🎯 Niveau</label><select id="partner-level" name="level"><option value="">Tous les niveaux</option>${LEVELS.map(x => `<option>${x}</option>`).join("")}</select></div>
       <button class="primary" type="submit">RECHERCHER</button>
     </form>
+    <section class="mutual-card" aria-labelledby="mutual-title">
+      <div class="mutual-icon" aria-hidden="true">✨</div>
+      <div class="mutual-copy">
+        <span class="eyebrow">OPTIONNEL · PRIVÉ</span>
+        <h3 id="mutual-title">Connexion training</h3>
+        <p>Indiquez discrètement avec qui vous aimeriez essayer un training. Aucun refus n'est affiché : vous êtes prévenus seulement si le choix est réciproque.</p>
+        ${state.session
+          ? (state.profile?.training_match_enabled
+            ? `<div id="training-matches" class="mutual-matches"><div class="empty compact-empty">Recherche de vos connexions mutuelles…</div></div>`
+            : `<button class="secondary compact-btn" data-action="enable-training-match">ACTIVER DANS MON PROFIL</button>`)
+          : `<button class="secondary compact-btn" data-action="training-match-login">ME CONNECTER POUR PARTICIPER</button>`}
+      </div>
+    </section>
     <div id="partner-results"></div>
     <div class="section-title"><h3>Vous cherchez un training précis ?</h3><p>Publiez une demande avec une date et une heure.</p></div>
     <button class="secondary" data-action="training-create">PUBLIER UNE DEMANDE DE TRAINING</button>
@@ -217,7 +235,7 @@ function profileCard(profile) {
   const distance = Number.isFinite(profile._distanceKm) ? ` · ≈ ${Math.max(1, Math.round(profile._distanceKm))} km` : "";
   return `<article class="card">
     <div class="person-line">${avatar(profile)}<div><h3>${escapeHtml(profile.display_name || "Danseur")}</h3><div class="meta">📍 ${escapeHtml(profile.city || "Ville non indiquée")}${distance} · ${escapeHtml(profile.level || "Niveau non indiqué")}</div></div></div>
-    <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}</div>
+    <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}${profile.training_match_enabled ? `<span class="tag mutual-tag">✨ Connexion training</span>` : ""}</div>
     <button class="secondary top-gap" data-action="view-profile" data-id="${escapeHtml(profile.id)}">VOIR LE PROFIL</button>
   </article>`;
 }
@@ -264,6 +282,77 @@ async function searchPartners(form) {
     target.innerHTML = `<div class="section-title"><h3>Résultats</h3><p>${visible.length} profil${visible.length === 1 ? "" : "s"} trouvé${visible.length === 1 ? "" : "s"}${info}.</p></div>${visible.length ? visible.map(profileCard).join("") : `<div class="empty"><strong>Aucun partenaire trouvé.</strong><span>Essayez un rayon plus large, une autre ville ou tous les styles.</span></div>`}`;
   } catch {
     target.innerHTML = `<div class="status error">Impossible d'effectuer la recherche pour le moment.</div>`;
+  }
+}
+
+async function loadHomeTrainingMatchAlert() {
+  const target = document.querySelector("#home-training-match-alert");
+  if (!target || !state.session || !state.profile?.training_match_enabled) return;
+  try {
+    await refreshTrainingConnectionState();
+    if (!document.querySelector("#home-training-match-alert") || !state.trainingMatches.length) return;
+    target.innerHTML = `<button class="home-match-alert" data-action="go" data-screen="partners"><span>✨</span><div><strong>${state.trainingMatches.length} connexion${state.trainingMatches.length === 1 ? "" : "s"} training mutuelle${state.trainingMatches.length === 1 ? "" : "s"}</strong><small>Voir vos connexions</small></div><b>→</b></button>`;
+  } catch {
+    target.innerHTML = "";
+  }
+}
+
+async function refreshTrainingConnectionState() {
+  if (!state.session || !api.isConfigured()) {
+    state.trainingInterestIds = [];
+    state.trainingMatches = [];
+    return;
+  }
+  try {
+    const [ids, matches] = await Promise.all([api.listMyTrainingInterestIds(state.session.user.id), api.listTrainingMatches()]);
+    state.trainingInterestIds = ids || [];
+    state.trainingMatches = matches || [];
+  } catch {
+    state.trainingInterestIds = [];
+    state.trainingMatches = [];
+  }
+}
+
+async function loadTrainingMatches() {
+  const target = document.querySelector("#training-matches");
+  if (!target || !state.session || !state.profile?.training_match_enabled) return;
+  try {
+    await refreshTrainingConnectionState();
+    if (!document.querySelector("#training-matches")) return;
+    if (!state.trainingMatches.length) {
+      target.innerHTML = `<div class="empty compact-empty"><strong>Aucune connexion mutuelle pour le moment.</strong><span>Vos choix restent privés tant qu'ils ne sont pas réciproques.</span></div>`;
+      return;
+    }
+    target.innerHTML = `<div class="mutual-success"><strong>✨ ${state.trainingMatches.length} connexion${state.trainingMatches.length === 1 ? "" : "s"} mutuelle${state.trainingMatches.length === 1 ? "" : "s"}</strong><span>Vous pouvez maintenant échanger librement.</span></div>` + state.trainingMatches.map(match => `<article class="mutual-match-row">${avatar(match)}<div><strong>${escapeHtml(match.display_name || "Danseur")}</strong><span>${escapeHtml(match.city || "")}${match.level ? ` · ${escapeHtml(match.level)}` : ""}</span></div><button class="small-action" data-action="message-user" data-id="${escapeHtml(match.id)}">MESSAGE</button></article>`).join("");
+  } catch {
+    target.innerHTML = `<div class="status error">Impossible de charger vos connexions training.</div>`;
+  }
+}
+
+async function handleTrainingInterest(userId, active) {
+  if (!state.session) {
+    await requireAuth("Connectez-vous pour utiliser la connexion training.", { type: "training-interest", userId });
+    return;
+  }
+  if (!state.profile?.training_match_enabled) {
+    setFlash("Activez d'abord « Connexion training » dans votre profil. Votre participation reste facultative.");
+    go("profile", { preserveFlash: true });
+    return;
+  }
+  try {
+    const result = await api.setTrainingInterest(userId, active);
+    await refreshTrainingConnectionState();
+    if (result?.matched && active) {
+      setFlash(`✨ Connexion mutuelle avec ${result.target_name || "ce danseur"} ! Vous pouvez maintenant échanger.`);
+    } else if (active) {
+      setFlash("Votre intérêt a été enregistré discrètement. L'autre personne n'en saura rien sauf si elle vous choisit aussi.");
+    } else {
+      setFlash("Votre intérêt a été retiré.");
+    }
+    render();
+  } catch (error) {
+    setFlash(friendlyError(error, "Impossible de mettre à jour cette connexion training."), "error");
+    render();
   }
 }
 
@@ -397,6 +486,9 @@ function ownProfileView() {
       <fieldset class="field fieldset"><legend>Styles pratiqués</legend>${DANCE_STYLES.map(style => `<label class="check-row"><input type="checkbox" name="styles" value="${escapeHtml(style)}" ${styles.includes(style) ? "checked" : ""}/> <span>${escapeHtml(style)}</span></label>`).join("")}</fieldset>
       <div class="field"><label>Courte présentation <span class="help">(facultatif)</span></label><textarea name="bio" maxlength="500">${escapeHtml(state.profile?.bio || "")}</textarea></div>
       <label class="check-row visibility-row"><input type="checkbox" name="is_visible" ${state.profile?.is_visible !== false ? "checked" : ""} /><span>Profil visible dans les recherches</span></label>
+      <div class="mutual-setting">
+        <label class="check-row"><input type="checkbox" name="training_match_enabled" ${state.profile?.training_match_enabled ? "checked" : ""} /><span><strong>Activer Connexion training</strong><small>Vos choix restent privés. Une connexion n'apparaît que si les deux personnes se choisissent.</small></span></label>
+      </div>
       <button class="primary" type="submit">ENREGISTRER</button>
     </form>
     <div class="actions"><button class="secondary" data-action="my-posts">MES ANNONCES</button><button class="secondary" data-action="blocked-users">PERSONNES BLOQUÉES</button><button class="secondary" data-action="messages">MES MESSAGES</button><button class="danger-btn" data-action="logout">ME DÉCONNECTER</button></div>`;
@@ -412,6 +504,13 @@ function publicProfileView() {
       <div class="person-line">${avatar(p, "large")}<div><h2>${escapeHtml(p.display_name)}</h2><div class="meta">📍 ${escapeHtml(p.city || "Ville non indiquée")} · ${escapeHtml(p.level || "Niveau non indiqué")}</div></div></div>
       <div class="tags">${styles.map(style => `<span class="tag">${escapeHtml(style)}</span>`).join("")}</div>
       ${p.bio ? `<div class="divider"></div><p class="profile-bio">${escapeHtml(p.bio)}</p>` : ""}
+      ${p.training_match_enabled ? (() => {
+        const interested = state.trainingInterestIds.includes(p.id);
+        const matched = state.trainingMatches.some(match => match.id === p.id);
+        if (matched) return `<div class="mutual-profile-panel matched"><span class="eyebrow">CONNEXION TRAINING</span><strong>✨ Connexion mutuelle</strong><p>Vous vous êtes choisis tous les deux pour essayer un training.</p></div>`;
+        if (state.session && !state.profile?.training_match_enabled) return `<div class="mutual-profile-panel"><span class="eyebrow">CONNEXION TRAINING · PRIVÉE</span><p>Activez cette option dans votre profil pour participer.</p><button class="secondary" data-action="enable-training-match">ACTIVER DANS MON PROFIL</button></div>`;
+        return `<div class="mutual-profile-panel"><span class="eyebrow">CONNEXION TRAINING · PRIVÉE</span><p>Votre choix reste invisible. Il n'est révélé que si ${escapeHtml(p.display_name || "cette personne")} vous choisit aussi.</p><button class="${interested ? "secondary" : "primary"}" data-action="training-interest" data-id="${escapeHtml(p.id)}" data-active="${interested ? "false" : "true"}">${interested ? "INTÉRÊT ENVOYÉ · ANNULER" : "ÇA POURRAIT FONCTIONNER EN TRAINING"}</button></div>`;
+      })() : ""}
       <div class="actions"><button class="primary" data-action="message-user" data-id="${escapeHtml(p.id)}">ENVOYER UN MESSAGE</button><button class="secondary" data-action="training-with" data-id="${escapeHtml(p.id)}">PROPOSER UN TRAINING</button><button class="text-btn danger-text" data-action="report-profile" data-id="${escapeHtml(p.id)}" data-name="${escapeHtml(p.display_name)}">SIGNALER CE PROFIL</button></div>
     </article>`;
 }
@@ -550,6 +649,9 @@ function friendlyError(error, fallback) {
   if (message.includes("feedback rate limited")) return "Merci pour votre retour. Attendez quelques secondes avant d’en envoyer un autre.";
   if (message.includes("past_date")) return "Choisissez une date d'aujourd'hui ou future.";
   if (message.includes("conversation blocked")) return "Cette conversation est bloquée.";
+  if (message.includes("training match disabled")) return "Activez d’abord Connexion training dans votre profil.";
+  if (message.includes("target unavailable")) return "Cette personne ne participe plus à Connexion training.";
+  if (message.includes("pair blocked")) return "Cette connexion n’est pas disponible.";
   if (message.includes("invalid login credentials")) return "Votre email ou votre mot de passe est incorrect.";
   if (message.includes("user already registered") || message.includes("already registered")) return "Un compte existe déjà avec cet email.";
   return fallback;
@@ -577,7 +679,8 @@ function render() {
   }
   app.innerHTML = `<div class="app-shell">${header()}<main class="${state.screen === "home" ? "main-home" : ""}">${content}</main></div>`;
   wireForms();
-  if (state.screen === "partners") loadTraining();
+  if (state.screen === "home") loadHomeTrainingMatchAlert();
+  if (state.screen === "partners") { loadTraining(); loadTrainingMatches(); }
   if (state.screen === "messages") loadThreads();
   if (state.screen === "chat") loadChat();
   if (state.screen === "my-posts") loadMyPosts();
@@ -677,7 +780,8 @@ function wireForms() {
         styles: fd.getAll("styles"),
         bio: String(fd.get("bio") || "").trim() || null,
         avatar_url: avatarUrl,
-        is_visible: fd.get("is_visible") === "on"
+        is_visible: fd.get("is_visible") === "on",
+        training_match_enabled: fd.get("training_match_enabled") === "on"
       });
       setFlash("Profil enregistré.");
       render();
@@ -761,11 +865,17 @@ app.addEventListener("click", async event => {
 
   if (action === "view-profile") {
     if (!api.isConfigured()) return;
-    try { state.selectedProfile = await api.getPublicProfile(button.dataset.id); go("public-profile"); }
-    catch { setFlash("Ce profil n'est plus disponible.", "error"); render(); }
+    try {
+      state.selectedProfile = await api.getPublicProfile(button.dataset.id);
+      await refreshTrainingConnectionState();
+      go("public-profile");
+    } catch { setFlash("Ce profil n'est plus disponible.", "error"); render(); }
     return;
   }
 
+  if (action === "training-match-login") { await requireAuth("Connectez-vous pour utiliser la connexion training.", { type: "enable-training-match" }); return; }
+  if (action === "enable-training-match") { if (!state.session) { await requireAuth("Connectez-vous pour activer la connexion training.", null); return; } setFlash("Activez « Connexion training » puis enregistrez votre profil."); go("profile", { preserveFlash: true }); return; }
+  if (action === "training-interest") { await handleTrainingInterest(button.dataset.id, button.dataset.active !== "false"); return; }
   if (action === "message-user") { await requireAuth("Créez votre compte ou connectez-vous pour contacter ce danseur.", { type: "message-user", userId: button.dataset.id }); return; }
   if (action === "training-with") { await requireAuth("Connectez-vous pour proposer un training.", { type: "message-user", userId: button.dataset.id, draft: "Bonjour, je voudrais te proposer un training." }); return; }
 
@@ -840,6 +950,8 @@ app.addEventListener("click", async event => {
     state.session = null;
     state.profile = null;
     state.selectedConversation = null;
+    state.trainingInterestIds = [];
+    state.trainingMatches = [];
     savePendingAction(null);
     setFlash("Vous êtes déconnecté.");
     go("home", { preserveFlash: true });

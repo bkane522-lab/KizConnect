@@ -54,7 +54,7 @@ export async function getOwnProfile(userId) {
   needSupabase();
   return resultOrThrow(await supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,created_at,updated_at")
+    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
     .eq("id", userId)
     .single());
 }
@@ -63,7 +63,7 @@ export async function getPublicProfile(userId) {
   needSupabase();
   return resultOrThrow(await supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url")
+    .select("id,display_name,city,level,styles,bio,avatar_url,training_match_enabled")
     .eq("id", userId)
     .eq("is_visible", true)
     .single());
@@ -75,7 +75,7 @@ export async function updateOwnProfile(userId, payload) {
     .from("profiles")
     .update({ ...payload, updated_at: new Date().toISOString() })
     .eq("id", userId)
-    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,created_at,updated_at")
+    .select("id,display_name,city,level,styles,bio,avatar_url,is_visible,training_match_enabled,created_at,updated_at")
     .single());
 }
 
@@ -106,7 +106,7 @@ export async function searchPartners({ city = "", style = "", level = "", broad 
   needSupabase();
   let query = supabase
     .from("profiles")
-    .select("id,display_name,city,level,styles,bio,avatar_url,updated_at")
+    .select("id,display_name,city,level,styles,bio,avatar_url,training_match_enabled,updated_at")
     .eq("is_visible", true)
     .limit(broad ? 120 : 50);
   if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
@@ -271,7 +271,31 @@ export async function listBlockedIds(userId) {
 }
 
 
-export async function submitBetaFeedback({ userId, category, message, appVersion = "3.3.1" }) {
+export async function listMyTrainingInterestIds(userId) {
+  if (!userId || !supabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from("training_interests")
+    .select("to_user_id")
+    .eq("from_user_id", userId);
+  if (error) throw error;
+  return (data || []).map(row => row.to_user_id);
+}
+
+export async function setTrainingInterest(targetUserId, active = true) {
+  needSupabase();
+  const rows = resultOrThrow(await supabase.rpc("set_training_interest", {
+    target_user: targetUserId,
+    active
+  }));
+  return Array.isArray(rows) ? (rows[0] || null) : rows;
+}
+
+export async function listTrainingMatches() {
+  needSupabase();
+  return resultOrThrow(await supabase.rpc("list_training_matches"));
+}
+
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.4.0" }) {
   needSupabase();
   return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
     feedback_category: category,
