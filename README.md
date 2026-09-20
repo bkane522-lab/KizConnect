@@ -1,4 +1,16 @@
-# KizConnect V3.5 — rôles de danse
+
+## V3.6 — Recherche partenaire plus directe
+
+La recherche partenaire n’utilise plus les menus déroulants natifs pour les filtres principaux.
+
+- rayon visible : Ville exacte, 5, 10, 25 ou 50 km ;
+- plusieurs styles peuvent être sélectionnés ;
+- plusieurs niveaux peuvent être sélectionnés ;
+- plusieurs rôles peuvent être sélectionnés ;
+- le choix `Tous` / `Peu importe` se réactive automatiquement si aucun filtre spécifique n’est sélectionné ;
+- aucune nouvelle migration Supabase n’est nécessaire par rapport à la V3.5.
+
+# KizConnect V3.6 — rôles de danse
 
 **KizConnect — Trouvez avec qui danser.**
 
