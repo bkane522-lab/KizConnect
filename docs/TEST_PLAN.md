@@ -87,3 +87,12 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 4. Vérifier qu'un compte tiers ne peut pas lire les intérêts entrants dans `training_interests`.
 5. Bloquer l'autre compte : la connexion ne doit plus être exploitable.
 6. Désactiver Connexion training sur un profil : ce profil ne doit plus pouvoir recevoir de nouvel intérêt.
+
+
+## V3.5 — rôle de danse
+- Dans Mon profil, laisser le rôle vide puis enregistrer : OK.
+- Choisir Leader, Follower puis Les deux : la valeur persiste après actualisation.
+- Recherche « Leader » : retourne les profils Leader et Les deux.
+- Recherche « Follower » : retourne les profils Follower et Les deux.
+- Recherche « Les deux » : retourne uniquement les profils Les deux.
+- Le rôle apparaît sur les cartes et profils publics sans être lié au genre.
