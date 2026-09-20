@@ -96,3 +96,13 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 - Recherche « Follower » : retourne les profils Follower et Les deux.
 - Recherche « Les deux » : retourne uniquement les profils Les deux.
 - Le rôle apparaît sur les cartes et profils publics sans être lié au genre.
+
+## V3.6 — filtres directs multi-sélection
+
+1. Ouvrir **Trouver un partenaire** sur Android et iPhone.
+2. Vérifier qu'aucun menu déroulant natif n'est utilisé pour Rayon, Styles, Niveaux et Rôles.
+3. Sélectionner plusieurs styles (ex. Kizomba + Urban Kiz) et vérifier que les profils correspondant à au moins un style apparaissent.
+4. Sélectionner plusieurs niveaux (ex. Intermédiaire + Avancé) et vérifier les résultats.
+5. Sélectionner Leader + Follower et vérifier que les profils « Les deux » restent compatibles.
+6. Désélectionner tous les choix spécifiques : le bouton « Tous » / « Peu importe » doit se réactiver automatiquement.
+7. Tester Ville exacte puis 5/10/25/50 km.
