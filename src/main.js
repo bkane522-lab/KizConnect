@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.6.1";
+const APP_VERSION = "3.6.2";
 
 const state = {
   screen: "home",
@@ -201,35 +201,35 @@ function homeView() {
 }
 
 function partnersView() {
-  return `${pageHead("Trouver un partenaire", "Recherchez simplement autour de vous.")}
+  return `${pageHead("Trouver un partenaire", "Choisissez vos critères puis recherchez.")}
     ${statusBlock()}
-    <form class="form-card partner-search-card" id="partner-search-form">
-      <div class="field"><label for="partner-city">📍 Ville</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
-      <fieldset class="field filter-field"><legend>📏 Rayon</legend><div class="filter-chips" data-filter-group="radius" data-filter-mode="single" aria-label="Rayon autour de la ville"><button type="button" class="filter-chip is-selected" data-filter-value="0" aria-pressed="true">Ville exacte</button><button type="button" class="filter-chip" data-filter-value="5" aria-pressed="false">5 km</button><button type="button" class="filter-chip" data-filter-value="10" aria-pressed="false">10 km</button><button type="button" class="filter-chip" data-filter-value="25" aria-pressed="false">25 km</button><button type="button" class="filter-chip" data-filter-value="50" aria-pressed="false">50 km</button></div><div class="help compact-help">Distance approximative depuis le centre de la commune.</div></fieldset>
-      <fieldset class="field filter-field"><legend>💃 Styles</legend><div class="filter-chips" data-filter-group="styles" data-filter-mode="multi" aria-label="Styles de danse recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${DANCE_STYLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
-      <fieldset class="field filter-field"><legend>🎯 Niveaux</legend><div class="filter-chips" data-filter-group="levels" data-filter-mode="multi" aria-label="Niveaux recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${LEVELS.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
-      <fieldset class="field filter-field"><legend>↔️ Rôles</legend><div class="filter-chips" data-filter-group="roles" data-filter-mode="multi" aria-label="Rôles recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Peu importe</button>${DANCE_ROLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
-      <div class="partner-search-sticky"><button class="primary" type="submit">RECHERCHER</button></div>
+    <form class="form-card partner-search-card simple-partner-search" id="partner-search-form">
+      <div class="field search-step"><label for="partner-city">📍 Où ?</label><input id="partner-city" name="city" maxlength="80" autocomplete="address-level2" placeholder="Ex : Tours" /></div>
+      <fieldset class="field filter-field search-step"><legend>📏 Rayon</legend><div class="filter-chips" data-filter-group="radius" data-filter-mode="single" aria-label="Rayon autour de la ville"><button type="button" class="filter-chip is-selected" data-filter-value="0" aria-pressed="true">Ville</button><button type="button" class="filter-chip" data-filter-value="5" aria-pressed="false">5 km</button><button type="button" class="filter-chip" data-filter-value="10" aria-pressed="false">10 km</button><button type="button" class="filter-chip" data-filter-value="25" aria-pressed="false">25 km</button><button type="button" class="filter-chip" data-filter-value="50" aria-pressed="false">50 km</button></div></fieldset>
+      <fieldset class="field filter-field search-step"><legend>💃 Styles</legend><div class="filter-chips" data-filter-group="styles" data-filter-mode="multi" aria-label="Styles de danse recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${DANCE_STYLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <fieldset class="field filter-field search-step"><legend>🎯 Niveaux</legend><div class="filter-chips" data-filter-group="levels" data-filter-mode="multi" aria-label="Niveaux recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Tous</button>${LEVELS.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <fieldset class="field filter-field search-step"><legend>↔️ Rôles</legend><div class="filter-chips" data-filter-group="roles" data-filter-mode="multi" aria-label="Rôles recherchés"><button type="button" class="filter-chip is-selected" data-filter-value="" aria-pressed="true">Peu importe</button>${DANCE_ROLES.map(x => `<button type="button" class="filter-chip" data-filter-value="${escapeHtml(x)}" aria-pressed="false">${escapeHtml(x)}</button>`).join("")}</div></fieldset>
+      <button class="primary partner-search-submit" type="submit">RECHERCHER</button>
     </form>
     <div id="partner-results" class="partner-results"></div>
-    <section class="mutual-card mutual-card-compact" aria-labelledby="mutual-title">
-      <div class="mutual-icon" aria-hidden="true">✨</div>
-      <div class="mutual-copy">
-        <span class="eyebrow">OPTIONNEL · PRIVÉ</span>
-        <h3 id="mutual-title">Connexion training</h3>
-        <p>Choix privé. Vous êtes prévenu uniquement si l'intérêt est réciproque.</p>
-        ${state.session
-          ? (state.profile?.training_match_enabled
-            ? `<div id="training-matches" class="mutual-matches"><div class="empty compact-empty">Recherche de vos connexions mutuelles…</div></div>`
-            : `<button class="secondary compact-btn" data-action="enable-training-match">ACTIVER</button>`)
-          : `<button class="secondary compact-btn" data-action="training-match-login">ME CONNECTER</button>`}
-      </div>
-    </section>
-    <section class="training-date-section">
-      <div class="section-title"><h3>📅 Training avec date</h3><p>Publiez une demande avec une date et une heure.</p></div>
-      <button class="secondary" data-action="training-create">PUBLIER UNE DEMANDE DE TRAINING</button>
-      <div class="section-title"><h3>Demandes de training</h3><p>Les prochaines demandes apparaissent ici.</p></div>
-      <div id="training-list" class="empty">Chargement des demandes…</div>
+    <section class="secondary-tools" aria-label="Options supplémentaires">
+      <section class="mutual-card mutual-card-simple" aria-labelledby="mutual-title">
+        <div class="mutual-icon" aria-hidden="true">✨</div>
+        <div class="mutual-copy">
+          <h3 id="mutual-title">Connexion training privée</h3>
+          <p>Un choix reste invisible tant qu'il n'est pas réciproque.</p>
+          ${state.session
+            ? (state.profile?.training_match_enabled
+              ? `<div id="training-matches" class="mutual-matches"><div class="empty compact-empty">Recherche de vos connexions…</div></div>`
+              : `<button class="secondary compact-btn" data-action="enable-training-match">DÉCOUVRIR</button>`)
+            : `<button class="secondary compact-btn" data-action="training-match-login">DÉCOUVRIR</button>`}
+        </div>
+      </section>
+      <section class="training-date-section simple-training-section">
+        <div class="section-title"><h3>📅 Trainings organisés</h3><p>Une date, une heure, un partenaire.</p></div>
+        <button class="secondary" data-action="training-create">PUBLIER UN TRAINING</button>
+        <div id="training-list" class="empty">Chargement des trainings…</div>
+      </section>
     </section>`;
 }
 
