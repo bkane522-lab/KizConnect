@@ -1,4 +1,4 @@
-const CACHE = "kizconnect-v3.6.0-shell";
+const CACHE = "kizconnect-v3.6.1-shell";
 const CORE = ["/", "/manifest.webmanifest", "/assets/icon-192.png", "/assets/icon-512.png", "/assets/kizconnect-symbol.png"];
 
 self.addEventListener("install", event => {
