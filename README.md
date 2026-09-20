@@ -1,4 +1,4 @@
-# KizConnect V3.3.1 — UX Polish
+# KizConnect V3.4 — UX Polish
 
 > Cette version part de la V3.2.2 validée et intègre les premiers retours de bêta-testeurs : recherche autour d’une ville, collecte structurée des retours et mise à jour PWA visible. Les fonctions existantes restent inchangées.
 
@@ -184,10 +184,26 @@ Si votre base V3 fonctionne déjà, **ne réexécutez pas la migration SQL**.
 - La V3.3 ajoute une migration Supabase **002**.
 
 
-## V3.3.1 — UX Polish
+## V3.4 — UX Polish
 
 - Affichage public simplifié : **Version bêta** sans numéro technique.
 - Bouton **Donner mon avis** rendu plus discret.
 - Confirmations de succès plus lisibles.
 - États vides plus utiles avec une action suggérée.
 - Aucun changement de schéma Supabase : la migration 002 déjà exécutée reste suffisante.
+
+
+## V3.4 — Connexion training mutuelle
+
+La V3.4 ajoute une fonction optionnelle pensée pour éviter les refus inconfortables :
+
+- chaque utilisateur choisit s'il souhaite participer via **Mon profil → Connexion training** ;
+- un intérêt envoyé reste totalement privé ;
+- aucun refus n'est affiché ;
+- une connexion apparaît uniquement lorsque les deux personnes se choisissent ;
+- les personnes bloquées sont exclues ;
+- aucun score, classement, like public ou swipe n'est ajouté.
+
+Après les migrations `001` et `002`, exécuter une seule fois :
+
+`supabase/migrations/003_kizconnect_v3_4_training_connections.sql`
