@@ -17,7 +17,8 @@ const required = [
   "public/assets/kizconnect-logo.png",
   "supabase/migrations/001_kizconnect_v3.sql",
   "supabase/migrations/002_kizconnect_v3_3_beta_feedback.sql",
-  "supabase/migrations/003_kizconnect_v3_4_training_connections.sql"
+  "supabase/migrations/003_kizconnect_v3_4_training_connections.sql",
+  "supabase/migrations/004_kizconnect_v3_5_dance_role.sql"
 ];
 
 const failures = [];
@@ -26,19 +27,20 @@ for (const file of required) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-if (pkg.version !== "3.4.0") failures.push("package.json n'est pas en version 3.4.0");
+if (pkg.version !== "3.5.0") failures.push("package.json n'est pas en version 3.5.0");
 
 const main = fs.readFileSync(path.join(root, "src/main.js"), "utf8");
 const api = fs.readFileSync(path.join(root, "src/api.js"), "utf8");
 const sql = fs.readFileSync(path.join(root, "supabase/migrations/001_kizconnect_v3.sql"), "utf8");
 const sql33 = fs.readFileSync(path.join(root, "supabase/migrations/002_kizconnect_v3_3_beta_feedback.sql"), "utf8");
 const sql34 = fs.readFileSync(path.join(root, "supabase/migrations/003_kizconnect_v3_4_training_connections.sql"), "utf8");
+const sql35 = fs.readFileSync(path.join(root, "supabase/migrations/004_kizconnect_v3_5_dance_role.sql"), "utf8");
 
 for (const banned of ["UPSTASH", "Tickets", "ticket", "kc_me"]) {
   if ((main + api).includes(banned)) failures.push(`Ancien élément détecté dans le frontend : ${banned}`);
 }
 
-for (const expected of ["TROUVER UN PARTENAIRE", "COVOITURAGE", "MES MESSAGES", "Donner mon avis", "partner-radius", "filterProfilesByRadius", "submitBetaFeedback", "setTrainingInterest", "listTrainingMatches", "Connexion training", "kizconnect-symbol.png", "subscribeToMessages", "hideConversation", "blockUser", "reportUser"]) {
+for (const expected of ["TROUVER UN PARTENAIRE", "COVOITURAGE", "MES MESSAGES", "Donner mon avis", "partner-radius", "filterProfilesByRadius", "submitBetaFeedback", "setTrainingInterest", "listTrainingMatches", "Connexion training", "partner-role", "dance_role", "DANCE_ROLES", "kizconnect-symbol.png", "subscribeToMessages", "hideConversation", "blockUser", "reportUser"]) {
   if (!(main + api).includes(expected)) failures.push(`Fonction V3 absente : ${expected}`);
 }
 
@@ -64,9 +66,13 @@ for (const expected of ["create table if not exists public.training_interests", 
   if (!sql34.includes(expected)) failures.push(`Protection V3.4 absente : ${expected}`);
 }
 
+for (const expected of ["add column if not exists dance_role", "profiles_valid_dance_role", "Leader", "Follower", "Les deux"]) {
+  if (!sql35.includes(expected)) failures.push(`Évolution V3.5 absente : ${expected}`);
+}
+
 if (failures.length) {
-  console.error("KizConnect V3.4 — échec du contrôle statique:\n- " + failures.join("\n- "));
+  console.error("KizConnect V3.5 — échec du contrôle statique:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("KizConnect V3.4 — contrôle statique OK.");
+console.log("KizConnect V3.5 — contrôle statique OK.");
