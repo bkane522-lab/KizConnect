@@ -106,3 +106,12 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 5. Sélectionner Leader + Follower et vérifier que les profils « Les deux » restent compatibles.
 6. Désélectionner tous les choix spécifiques : le bouton « Tous » / « Peu importe » doit se réactiver automatiquement.
 7. Tester Ville exacte puis 5/10/25/50 km.
+
+## V3.6.1 — Rapidité UX
+
+- Sur mobile, ouvrir **Trouver un partenaire** et faire défiler les filtres : le bouton **RECHERCHER** reste accessible tant que le formulaire est visible.
+- Vérifier que les titres affichent `Rayon`, `Styles`, `Niveaux`, `Rôles`.
+- Sélectionner plusieurs styles/niveaux/rôles puis rechercher : les résultats doivent apparaître immédiatement après le formulaire.
+- Vérifier le scroll automatique vers les résultats.
+- Vérifier que la carte **Connexion training** est compacte mais reste fonctionnelle.
+- Vérifier que **Training avec date** reste accessible et que les demandes existantes s'affichent.
