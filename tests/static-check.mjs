@@ -27,7 +27,7 @@ for (const file of required) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-if (pkg.version !== "3.5.0") failures.push("package.json n'est pas en version 3.5.0");
+if (pkg.version !== "3.6.0") failures.push("package.json n'est pas en version 3.6.0");
 
 const main = fs.readFileSync(path.join(root, "src/main.js"), "utf8");
 const api = fs.readFileSync(path.join(root, "src/api.js"), "utf8");
@@ -40,7 +40,7 @@ for (const banned of ["UPSTASH", "Tickets", "ticket", "kc_me"]) {
   if ((main + api).includes(banned)) failures.push(`Ancien élément détecté dans le frontend : ${banned}`);
 }
 
-for (const expected of ["TROUVER UN PARTENAIRE", "COVOITURAGE", "MES MESSAGES", "Donner mon avis", "partner-radius", "filterProfilesByRadius", "submitBetaFeedback", "setTrainingInterest", "listTrainingMatches", "Connexion training", "partner-role", "dance_role", "DANCE_ROLES", "kizconnect-symbol.png", "subscribeToMessages", "hideConversation", "blockUser", "reportUser"]) {
+for (const expected of ["TROUVER UN PARTENAIRE", "COVOITURAGE", "MES MESSAGES", "Donner mon avis", "data-filter-group=\"radius\"", "data-filter-group=\"styles\"", "data-filter-group=\"levels\"", "data-filter-group=\"roles\"", "getSelectedFilterValues", "filterProfilesByRadius", "submitBetaFeedback", "setTrainingInterest", "listTrainingMatches", "Connexion training", "dance_role", "DANCE_ROLES", "kizconnect-symbol.png", "subscribeToMessages", "hideConversation", "blockUser", "reportUser", "overlaps(\"styles\"", "query.in(\"level\""]) {
   if (!(main + api).includes(expected)) failures.push(`Fonction V3 absente : ${expected}`);
 }
 
@@ -71,8 +71,8 @@ for (const expected of ["add column if not exists dance_role", "profiles_valid_d
 }
 
 if (failures.length) {
-  console.error("KizConnect V3.5 — échec du contrôle statique:\n- " + failures.join("\n- "));
+  console.error("KizConnect V3.6 — échec du contrôle statique:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("KizConnect V3.5 — contrôle statique OK.");
+console.log("KizConnect V3.6 — contrôle statique OK.");
