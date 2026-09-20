@@ -77,3 +77,13 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 4. Envoyer un retour via « Donner mon avis » avec un compte connecté puis vérifier `beta_feedback` dans Supabase.
 5. Tenter deux retours en moins de 45 secondes : le second doit être refusé.
 6. Déployer une nouvelle version du service worker et vérifier l’affichage de « Nouvelle version disponible ».
+
+
+## V3.4 — Connexion training
+
+1. Activer « Connexion training » sur deux comptes de test.
+2. Depuis A, choisir B : B ne doit recevoir aucune information tant qu'il n'a pas choisi A.
+3. Depuis B, choisir A : les deux comptes doivent ensuite voir la connexion mutuelle.
+4. Vérifier qu'un compte tiers ne peut pas lire les intérêts entrants dans `training_interests`.
+5. Bloquer l'autre compte : la connexion ne doit plus être exploitable.
+6. Désactiver Connexion training sur un profil : ce profil ne doit plus pouvoir recevoir de nouvel intérêt.
