@@ -59,6 +59,16 @@ export async function requestPasswordReset(email, redirectTo) {
   }));
 }
 
+export async function verifyRecoveryToken(tokenHash) {
+  needSupabase();
+  const value = String(tokenHash || "").trim();
+  if (!value) throw new Error("RECOVERY_TOKEN_REQUIRED");
+  return resultOrThrow(await supabase.auth.verifyOtp({
+    token_hash: value,
+    type: "recovery"
+  }));
+}
+
 export async function updatePassword(password) {
   needSupabase();
   const value = String(password || "");

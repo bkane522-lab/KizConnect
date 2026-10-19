@@ -1147,8 +1147,15 @@ function recoveryRequestedInUrl() {
   return search.get("recovery") === "1" || search.get("type") === "recovery" || hash.get("type") === "recovery";
 }
 
+function recoveryTokenFromUrl() {
+  const search = new URLSearchParams(window.location.search);
+  if (search.get("type") !== "recovery") return "";
+  return String(search.get("token_hash") || "").trim();
+}
+
 async function boot() {
   const recoveryRequested = recoveryRequestedInUrl();
+  const recoveryToken = recoveryTokenFromUrl();
   if (api.isConfigured()) {
     api.onAuthStateChange(async (session, event) => {
       state.session = session;
@@ -1161,6 +1168,27 @@ async function boot() {
       }
       render();
     });
+  }
+  if (recoveryToken) {
+    try {
+      await api.verifyRecoveryToken(recoveryToken);
+      await refreshSession();
+      window.history.replaceState({}, document.title, `${window.location.pathname}?recovery=1`);
+      state.screen = "reset-password";
+      state.previous = "home";
+      state.error = "";
+      state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
+      render();
+      setupServiceWorkerUpdates();
+      return;
+    } catch (error) {
+      state.screen = "forgot-password";
+      state.previous = "auth";
+      state.error = "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
+      render();
+      setupServiceWorkerUpdates();
+      return;
+    }
   }
   await refreshSession();
   if (recoveryRequested) {
