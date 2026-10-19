@@ -1,18 +1,16 @@
-## V3.6.4 — Mot de passe oublié
+## V3.6.5 — Mot de passe oublié par code
 
-Cette version ajoute un parcours simple et sécurisé de récupération de mot de passe, sans changer la base Supabase.
+Cette version remplace les liens de récupération par un code à 6 chiffres envoyé par email.
 
-- lien **Mot de passe oublié ?** sur l'écran de connexion ;
-- saisie de l'email puis envoi d'un lien Supabase ;
-- message générique pour ne pas révéler si un email possède un compte ;
-- écran **Nouveau mot de passe** après validation du lien ;
-- confirmation du nouveau mot de passe ;
-- retour connecté dans KizConnect après changement ;
-- message clair si le lien est invalide ou expiré ;
-- redirection de récupération vers `https://kiz-connect.vercel.app/?recovery=1` en production ;
+Parcours : **Email → code à 6 chiffres → nouveau mot de passe → connecté**.
+
+- aucun lien Supabase à ouvrir ;
+- aucun `redirectTo` nécessaire ;
+- code vérifié dans KizConnect avec `verifyOtp(... type: "recovery")` ;
+- possibilité de renvoyer un nouveau code ;
 - aucune nouvelle migration SQL.
 
-# KizConnect V3.6.4
+# KizConnect V3.6.5
 
 **KizConnect — Trouvez avec qui danser.**
 
@@ -38,7 +36,7 @@ Les actions principales restent visibles et explicites. Les fonctions secondaire
 
 ## Supabase
 
-Aucune nouvelle migration pour V3.6.4. Conservez les migrations `001` à `004` déjà installées.
+Aucune nouvelle migration pour V3.6.5. Conservez les migrations `001` à `004` déjà installées.
 
 ## Installation locale
 
@@ -55,17 +53,15 @@ npm run check
 npm run build
 ```
 
+## Supabase — modèle email Reset password
 
-## V3.6.4 — récupération de mot de passe robuste
-
-Cette version contourne le lien GET `/auth/v1/verify` de Supabase pour la récupération de mot de passe.
-Le mail de récupération doit pointer directement vers KizConnect avec `TokenHash`, puis l'application vérifie le jeton avec `verifyOtp`.
-
-Dans **Supabase → Authentication → Emails → Reset password**, utiliser un lien de ce type :
+Dans **Authentication → Emails → Reset password**, remplacez le contenu qui contient un lien de confirmation par un message qui affiche le code :
 
 ```html
-<a href="{{ .SiteURL }}?recovery=1&token_hash={{ .TokenHash }}&type=recovery">Réinitialiser mon mot de passe</a>
+<h2>Réinitialisation de votre mot de passe KizConnect</h2>
+<p>Votre code de vérification :</p>
+<h1>{{ .Token }}</h1>
+<p>Saisissez ce code dans KizConnect pour choisir un nouveau mot de passe.</p>
 ```
 
-Le **Site URL** doit être `https://kiz-connect.vercel.app`.
-Aucune migration SQL n'est nécessaire pour cette version.
+Le modèle ne doit plus obliger l'utilisateur à ouvrir `{{ .ConfirmationURL }}` pour ce parcours.
