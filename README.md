@@ -1,4 +1,4 @@
-## V3.6.3 — Mot de passe oublié
+## V3.6.4 — Mot de passe oublié
 
 Cette version ajoute un parcours simple et sécurisé de récupération de mot de passe, sans changer la base Supabase.
 
@@ -12,7 +12,7 @@ Cette version ajoute un parcours simple et sécurisé de récupération de mot d
 - redirection de récupération vers `https://kiz-connect.vercel.app/?recovery=1` en production ;
 - aucune nouvelle migration SQL.
 
-# KizConnect V3.6.3
+# KizConnect V3.6.4
 
 **KizConnect — Trouvez avec qui danser.**
 
@@ -38,7 +38,7 @@ Les actions principales restent visibles et explicites. Les fonctions secondaire
 
 ## Supabase
 
-Aucune nouvelle migration pour V3.6.3. Conservez les migrations `001` à `004` déjà installées.
+Aucune nouvelle migration pour V3.6.4. Conservez les migrations `001` à `004` déjà installées.
 
 ## Installation locale
 
@@ -54,3 +54,18 @@ npm run dev
 npm run check
 npm run build
 ```
+
+
+## V3.6.4 — récupération de mot de passe robuste
+
+Cette version contourne le lien GET `/auth/v1/verify` de Supabase pour la récupération de mot de passe.
+Le mail de récupération doit pointer directement vers KizConnect avec `TokenHash`, puis l'application vérifie le jeton avec `verifyOtp`.
+
+Dans **Supabase → Authentication → Emails → Reset password**, utiliser un lien de ce type :
+
+```html
+<a href="{{ .SiteURL }}?recovery=1&token_hash={{ .TokenHash }}&type=recovery">Réinitialiser mon mot de passe</a>
+```
+
+Le **Site URL** doit être `https://kiz-connect.vercel.app`.
+Aucune migration SQL n'est nécessaire pour cette version.
