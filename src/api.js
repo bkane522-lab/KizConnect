@@ -50,21 +50,22 @@ export async function signOut() {
   resultOrThrow(await supabase.auth.signOut());
 }
 
-export async function requestPasswordReset(email, redirectTo) {
+export async function requestPasswordReset(email) {
   needSupabase();
   const cleanEmail = String(email || "").trim();
   if (!cleanEmail) throw new Error("EMAIL_REQUIRED");
-  return resultOrThrow(await supabase.auth.resetPasswordForEmail(cleanEmail, {
-    redirectTo
-  }));
+  return resultOrThrow(await supabase.auth.resetPasswordForEmail(cleanEmail));
 }
 
-export async function verifyRecoveryToken(tokenHash) {
+export async function verifyRecoveryCode(email, code) {
   needSupabase();
-  const value = String(tokenHash || "").trim();
-  if (!value) throw new Error("RECOVERY_TOKEN_REQUIRED");
+  const cleanEmail = String(email || "").trim();
+  const cleanCode = String(code || "").replace(/\D/g, "").trim();
+  if (!cleanEmail) throw new Error("EMAIL_REQUIRED");
+  if (!/^\d{6}$/.test(cleanCode)) throw new Error("RECOVERY_CODE_INVALID");
   return resultOrThrow(await supabase.auth.verifyOtp({
-    token_hash: value,
+    email: cleanEmail,
+    token: cleanCode,
     type: "recovery"
   }));
 }

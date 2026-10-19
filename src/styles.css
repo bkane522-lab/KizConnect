@@ -1476,3 +1476,24 @@ label { color: #fcf6ff; }
     margin-bottom: 8px;
   }
 }
+
+
+/* V3.6.5 — récupération par code à 6 chiffres */
+.otp-input {
+  text-align: center;
+  letter-spacing: .42em;
+  font-size: clamp(1.5rem, 7vw, 2rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.otp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.otp-actions .text-btn {
+  width: auto;
+  min-height: 44px;
+}

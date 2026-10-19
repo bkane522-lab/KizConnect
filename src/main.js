@@ -5,7 +5,8 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.6.3";
+const RECOVERY_EMAIL_KEY = "kizconnect_recovery_email";
+const APP_VERSION = "3.6.5";
 
 const state = {
   screen: "home",
@@ -17,6 +18,7 @@ const state = {
   reportTarget: null,
   authMode: "signup",
   authReason: "",
+  recoveryEmail: sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "",
   trainingInterestIds: [],
   trainingMatches: [],
   notice: "",
@@ -529,14 +531,31 @@ function authView() {
 }
 
 function forgotPasswordView() {
-  return `${pageHead("Mot de passe oublié", "Recevez un lien pour choisir un nouveau mot de passe.", "auth")}
+  return `${pageHead("Mot de passe oublié", "Recevez un code à 6 chiffres par email.", "auth")}
     ${statusBlock()}
     <form class="form-card" id="forgot-password-form">
-      <div class="field"><label>Email du compte</label><input type="email" name="email" required maxlength="254" autocomplete="email" placeholder="votre@email.fr" /></div>
-      <div class="help auth-help">Nous vous enverrons un lien de récupération. Pour votre sécurité, le message affiché reste le même même si l'adresse n'existe pas.</div>
-      <button class="primary" type="submit">ENVOYER LE LIEN</button>
+      <div class="field"><label>Email du compte</label><input type="email" name="email" required maxlength="254" autocomplete="email" placeholder="votre@email.fr" value="${escapeHtml(state.recoveryEmail || "")}" /></div>
+      <div class="help auth-help">Nous vous enverrons un code temporaire. Vous resterez dans KizConnect pour terminer la récupération.</div>
+      <button class="primary" type="submit">ENVOYER LE CODE</button>
     </form>
     <button class="text-btn" data-action="back-to-login">Retour à la connexion</button>`;
+}
+
+function verifyRecoveryCodeView() {
+  return `${pageHead("Saisir le code", `Code envoyé à ${state.recoveryEmail || "votre email"}.`, "forgot-password")}
+    ${statusBlock()}
+    <form class="form-card" id="recovery-code-form">
+      <div class="field">
+        <label>Code à 6 chiffres</label>
+        <input class="otp-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" name="code" required autocomplete="one-time-code" placeholder="000000" aria-describedby="otp-help" />
+        <div class="help" id="otp-help">Saisissez uniquement les 6 chiffres reçus par email.</div>
+      </div>
+      <button class="primary" type="submit">VALIDER LE CODE</button>
+    </form>
+    <div class="otp-actions">
+      <button class="text-btn" data-action="resend-recovery-code">Renvoyer un code</button>
+      <button class="text-btn" data-action="change-recovery-email">Changer l'email</button>
+    </div>`;
 }
 
 function resetPasswordView() {
@@ -733,7 +752,8 @@ function friendlyError(error, fallback) {
   if (message.includes("email_required")) return "Saisissez votre adresse email.";
   if (message.includes("password_too_short")) return "Le mot de passe doit contenir au moins 8 caractères.";
   if (message.includes("same password")) return "Choisissez un mot de passe différent de l'ancien.";
-  if (message.includes("otp_expired") || message.includes("token has expired") || message.includes("link is invalid") || message.includes("expired")) return "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
+  if (message.includes("recovery_code_invalid")) return "Le code doit contenir exactement 6 chiffres.";
+  if (message.includes("otp_expired") || message.includes("token has expired") || message.includes("invalid otp") || message.includes("otp") || message.includes("expired")) return "Code invalide ou expiré. Demandez un nouveau code.";
   if (message.includes("user already registered") || message.includes("already registered")) return "Un compte existe déjà avec cet email.";
   return fallback;
 }
@@ -749,6 +769,7 @@ function render() {
     case "carpool-offer": content = carpoolOfferView(); break;
     case "auth": content = authView(); break;
     case "forgot-password": content = forgotPasswordView(); break;
+    case "verify-recovery-code": content = verifyRecoveryCodeView(); break;
     case "reset-password": content = resetPasswordView(); break;
     case "profile": content = ownProfileView(); break;
     case "public-profile": content = publicProfileView(); break;
@@ -855,22 +876,39 @@ function wireForms() {
     const fd = new FormData(event.currentTarget);
     const email = String(fd.get("email") || "").trim();
     try {
-      const redirectTo = window.location.hostname === "localhost"
-        ? `${window.location.origin}/?recovery=1`
-        : "https://kiz-connect.vercel.app/?recovery=1";
-      await api.requestPasswordReset(email, redirectTo);
-      setFlash("Si un compte existe avec cet email, un lien de récupération vient d'être envoyé.");
-      state.authMode = "login";
-      go("auth", { preserveFlash: true });
+      await api.requestPasswordReset(email);
+      state.recoveryEmail = email;
+      sessionStorage.setItem(RECOVERY_EMAIL_KEY, email);
+      setFlash("Si un compte existe avec cet email, un code à 6 chiffres vient d'être envoyé.");
+      go("verify-recovery-code", { preserveFlash: true });
     } catch (error) {
-      setFlash(friendlyError(error, "Impossible d'envoyer le lien pour le moment. Réessayez dans quelques instants."), "error");
+      setFlash(friendlyError(error, "Impossible d'envoyer le code pour le moment. Réessayez dans quelques instants."), "error");
+      render();
+    }
+  });
+
+  document.querySelector("#recovery-code-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!api.isConfigured()) { setFlash("Supabase n'est pas configuré.", "error"); render(); return; }
+    const fd = new FormData(event.currentTarget);
+    const code = String(fd.get("code") || "").replace(/\D/g, "");
+    const email = state.recoveryEmail || sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "";
+    if (!email) { setFlash("Saisissez d'abord l'email de votre compte.", "error"); go("forgot-password", { preserveFlash: true }); return; }
+    if (!/^\d{6}$/.test(code)) { setFlash("Le code doit contenir exactement 6 chiffres.", "error"); render(); return; }
+    try {
+      await api.verifyRecoveryCode(email, code);
+      await refreshSession();
+      setFlash("Code validé. Choisissez maintenant votre nouveau mot de passe.");
+      go("reset-password", { preserveFlash: true });
+    } catch (error) {
+      setFlash(friendlyError(error, "Code invalide ou expiré. Vérifiez les 6 chiffres ou demandez un nouveau code."), "error");
       render();
     }
   });
 
   document.querySelector("#reset-password-form")?.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!state.session) { setFlash("Le lien de récupération est invalide ou a expiré. Demandez-en un nouveau.", "error"); go("forgot-password", { preserveFlash: true }); return; }
+    if (!state.session) { setFlash("Le code n’est plus valide. Demandez un nouveau code.", "error"); go("forgot-password", { preserveFlash: true }); return; }
     const fd = new FormData(event.currentTarget);
     const password = String(fd.get("password") || "");
     const confirmation = String(fd.get("password_confirm") || "");
@@ -878,7 +916,8 @@ function wireForms() {
     try {
       await api.updatePassword(password);
       await refreshSession();
-      window.history.replaceState({}, document.title, window.location.pathname);
+      sessionStorage.removeItem(RECOVERY_EMAIL_KEY);
+      state.recoveryEmail = "";
       setFlash("Mot de passe modifié. Vous êtes connecté.");
       go("home", { preserveFlash: true });
     } catch (error) {
@@ -981,6 +1020,20 @@ app.addEventListener("click", async event => {
   if (action === "toggle-auth") { state.authMode = state.authMode === "signup" ? "login" : "signup"; state.error = ""; state.notice = ""; render(); return; }
   if (action === "forgot-password") { state.authReason = ""; go("forgot-password"); return; }
   if (action === "back-to-login") { state.authMode = "login"; state.authReason = ""; go("auth"); return; }
+  if (action === "change-recovery-email") { go("forgot-password"); return; }
+  if (action === "resend-recovery-code") {
+    const email = state.recoveryEmail || sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "";
+    if (!email) { go("forgot-password"); return; }
+    try {
+      await api.requestPasswordReset(email);
+      setFlash("Un nouveau code vient d'être envoyé. Utilisez uniquement le dernier code reçu.");
+      render();
+    } catch (error) {
+      setFlash(friendlyError(error, "Impossible de renvoyer le code pour le moment."), "error");
+      render();
+    }
+    return;
+  }
   if (action === "messages") { await requireAuth("Connectez-vous pour lire et envoyer vos messages.", { type: "messages" }); return; }
   if (action === "feedback") { await requireAuth("Connectez-vous pour envoyer un retour bêta.", { type: "feedback" }); return; }
   if (action === "training-create") { await requireAuth("Créez votre compte pour publier une demande de training.", { type: "training-create" }); return; }
@@ -1141,21 +1194,7 @@ async function setupServiceWorkerUpdates() {
   } catch {}
 }
 
-function recoveryRequestedInUrl() {
-  const search = new URLSearchParams(window.location.search);
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  return search.get("recovery") === "1" || search.get("type") === "recovery" || hash.get("type") === "recovery";
-}
-
-function recoveryTokenFromUrl() {
-  const search = new URLSearchParams(window.location.search);
-  if (search.get("type") !== "recovery") return "";
-  return String(search.get("token_hash") || "").trim();
-}
-
 async function boot() {
-  const recoveryRequested = recoveryRequestedInUrl();
-  const recoveryToken = recoveryTokenFromUrl();
   if (api.isConfigured()) {
     api.onAuthStateChange(async (session, event) => {
       state.session = session;
@@ -1164,48 +1203,12 @@ async function boot() {
         state.screen = "reset-password";
         state.previous = "home";
         state.error = "";
-        state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
+        state.notice = "Code validé. Choisissez maintenant votre nouveau mot de passe.";
       }
       render();
     });
   }
-  if (recoveryToken) {
-    try {
-      await api.verifyRecoveryToken(recoveryToken);
-      await refreshSession();
-      window.history.replaceState({}, document.title, `${window.location.pathname}?recovery=1`);
-      state.screen = "reset-password";
-      state.previous = "home";
-      state.error = "";
-      state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
-      render();
-      setupServiceWorkerUpdates();
-      return;
-    } catch (error) {
-      state.screen = "forgot-password";
-      state.previous = "auth";
-      state.error = "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
-      render();
-      setupServiceWorkerUpdates();
-      return;
-    }
-  }
   await refreshSession();
-  if (recoveryRequested) {
-    if (state.session) {
-      state.screen = "reset-password";
-      state.previous = "home";
-      state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
-      render();
-    } else {
-      state.screen = "forgot-password";
-      state.previous = "auth";
-      state.error = "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
-      render();
-    }
-    setupServiceWorkerUpdates();
-    return;
-  }
   const resumed = await resumeAfterBoot();
   if (!resumed) render();
   setupServiceWorkerUpdates();
