@@ -1448,3 +1448,31 @@ label { color: #fcf6ff; }
 @media (prefers-reduced-motion: reduce) {
   .partner-results { scroll-behavior: auto; }
 }
+
+
+/* V3.6.3 — récupération de mot de passe */
+.forgot-link {
+  width: auto;
+  min-height: 38px;
+  margin: -6px 0 10px auto;
+  display: block;
+  text-align: right;
+  color: #e3a6ff;
+  text-decoration: underline;
+  text-decoration-color: rgba(227, 166, 255, .35);
+  text-underline-offset: 4px;
+}
+.forgot-link:hover, .forgot-link:focus-visible {
+  color: #fff;
+  text-decoration-color: rgba(255, 255, 255, .8);
+}
+.auth-help {
+  margin: -2px 0 16px;
+  line-height: 1.5;
+}
+@media (max-width: 640px) {
+  .forgot-link {
+    min-height: 44px;
+    margin-bottom: 8px;
+  }
+}

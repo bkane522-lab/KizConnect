@@ -5,7 +5,7 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const APP_VERSION = "3.6.2";
+const APP_VERSION = "3.6.3";
 
 const state = {
   screen: "home",
@@ -522,9 +522,31 @@ function authView() {
       ${signup ? `<div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" autocomplete="nickname" /></div><div class="field"><label>Ville</label><input name="city" required maxlength="80" autocomplete="address-level2" /></div>` : ""}
       <div class="field"><label>Email</label><input type="email" name="email" required maxlength="254" autocomplete="email" /></div>
       <div class="field"><label>Mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="${signup ? "new-password" : "current-password"}" /><div class="help">8 caractères minimum.</div></div>
+      ${signup ? "" : `<button class="text-btn forgot-link" type="button" data-action="forgot-password">Mot de passe oublié ?</button>`}
       <button class="primary" type="submit">${signup ? "CRÉER MON COMPTE" : "ME CONNECTER"}</button>
     </form>
     <button class="text-btn" data-action="toggle-auth">${signup ? "J'ai déjà un compte" : "Créer un compte"}</button>`;
+}
+
+function forgotPasswordView() {
+  return `${pageHead("Mot de passe oublié", "Recevez un lien pour choisir un nouveau mot de passe.", "auth")}
+    ${statusBlock()}
+    <form class="form-card" id="forgot-password-form">
+      <div class="field"><label>Email du compte</label><input type="email" name="email" required maxlength="254" autocomplete="email" placeholder="votre@email.fr" /></div>
+      <div class="help auth-help">Nous vous enverrons un lien de récupération. Pour votre sécurité, le message affiché reste le même même si l'adresse n'existe pas.</div>
+      <button class="primary" type="submit">ENVOYER LE LIEN</button>
+    </form>
+    <button class="text-btn" data-action="back-to-login">Retour à la connexion</button>`;
+}
+
+function resetPasswordView() {
+  return `${pageHead("Nouveau mot de passe", "Choisissez un nouveau mot de passe pour votre compte.", "home")}
+    ${statusBlock()}
+    <form class="form-card" id="reset-password-form">
+      <div class="field"><label>Nouveau mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password" /><div class="help">8 caractères minimum.</div></div>
+      <div class="field"><label>Confirmer le mot de passe</label><input type="password" name="password_confirm" required minlength="8" maxlength="128" autocomplete="new-password" /></div>
+      <button class="primary" type="submit">ENREGISTRER LE NOUVEAU MOT DE PASSE</button>
+    </form>`;
 }
 
 function ownProfileView() {
@@ -708,6 +730,10 @@ function friendlyError(error, fallback) {
   if (message.includes("target unavailable")) return "Cette personne ne participe plus à Connexion training.";
   if (message.includes("pair blocked")) return "Cette connexion n’est pas disponible.";
   if (message.includes("invalid login credentials")) return "Votre email ou votre mot de passe est incorrect.";
+  if (message.includes("email_required")) return "Saisissez votre adresse email.";
+  if (message.includes("password_too_short")) return "Le mot de passe doit contenir au moins 8 caractères.";
+  if (message.includes("same password")) return "Choisissez un mot de passe différent de l'ancien.";
+  if (message.includes("otp_expired") || message.includes("token has expired") || message.includes("link is invalid") || message.includes("expired")) return "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
   if (message.includes("user already registered") || message.includes("already registered")) return "Un compte existe déjà avec cet email.";
   return fallback;
 }
@@ -722,6 +748,8 @@ function render() {
     case "carpool-search": content = carpoolSearchView(); break;
     case "carpool-offer": content = carpoolOfferView(); break;
     case "auth": content = authView(); break;
+    case "forgot-password": content = forgotPasswordView(); break;
+    case "reset-password": content = resetPasswordView(); break;
     case "profile": content = ownProfileView(); break;
     case "public-profile": content = publicProfileView(); break;
     case "messages": content = messagesView(); break;
@@ -821,6 +849,44 @@ function wireForms() {
     }
   });
 
+  document.querySelector("#forgot-password-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!api.isConfigured()) { setFlash("Supabase n'est pas configuré.", "error"); render(); return; }
+    const fd = new FormData(event.currentTarget);
+    const email = String(fd.get("email") || "").trim();
+    try {
+      const redirectTo = window.location.hostname === "localhost"
+        ? `${window.location.origin}/?recovery=1`
+        : "https://kiz-connect.vercel.app/?recovery=1";
+      await api.requestPasswordReset(email, redirectTo);
+      setFlash("Si un compte existe avec cet email, un lien de récupération vient d'être envoyé.");
+      state.authMode = "login";
+      go("auth", { preserveFlash: true });
+    } catch (error) {
+      setFlash(friendlyError(error, "Impossible d'envoyer le lien pour le moment. Réessayez dans quelques instants."), "error");
+      render();
+    }
+  });
+
+  document.querySelector("#reset-password-form")?.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!state.session) { setFlash("Le lien de récupération est invalide ou a expiré. Demandez-en un nouveau.", "error"); go("forgot-password", { preserveFlash: true }); return; }
+    const fd = new FormData(event.currentTarget);
+    const password = String(fd.get("password") || "");
+    const confirmation = String(fd.get("password_confirm") || "");
+    if (password !== confirmation) { setFlash("Les deux mots de passe ne sont pas identiques.", "error"); render(); return; }
+    try {
+      await api.updatePassword(password);
+      await refreshSession();
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setFlash("Mot de passe modifié. Vous êtes connecté.");
+      go("home", { preserveFlash: true });
+    } catch (error) {
+      setFlash(friendlyError(error, "Impossible de modifier le mot de passe."), "error");
+      render();
+    }
+  });
+
   document.querySelector("#profile-form")?.addEventListener("submit", async event => {
     event.preventDefault();
     if (!state.session) return;
@@ -913,6 +979,8 @@ app.addEventListener("click", async event => {
   if (action === "go") { go(button.dataset.screen); return; }
   if (action === "account") { if (state.session) go("profile"); else { state.authReason = ""; state.authMode = "login"; go("auth"); } return; }
   if (action === "toggle-auth") { state.authMode = state.authMode === "signup" ? "login" : "signup"; state.error = ""; state.notice = ""; render(); return; }
+  if (action === "forgot-password") { state.authReason = ""; go("forgot-password"); return; }
+  if (action === "back-to-login") { state.authMode = "login"; state.authReason = ""; go("auth"); return; }
   if (action === "messages") { await requireAuth("Connectez-vous pour lire et envoyer vos messages.", { type: "messages" }); return; }
   if (action === "feedback") { await requireAuth("Connectez-vous pour envoyer un retour bêta.", { type: "feedback" }); return; }
   if (action === "training-create") { await requireAuth("Créez votre compte pour publier une demande de training.", { type: "training-create" }); return; }
@@ -1073,14 +1141,42 @@ async function setupServiceWorkerUpdates() {
   } catch {}
 }
 
+function recoveryRequestedInUrl() {
+  const search = new URLSearchParams(window.location.search);
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return search.get("recovery") === "1" || search.get("type") === "recovery" || hash.get("type") === "recovery";
+}
+
 async function boot() {
-  await refreshSession();
+  const recoveryRequested = recoveryRequestedInUrl();
   if (api.isConfigured()) {
-    api.onAuthStateChange(async session => {
+    api.onAuthStateChange(async (session, event) => {
       state.session = session;
       await loadOwnProfile();
+      if (event === "PASSWORD_RECOVERY") {
+        state.screen = "reset-password";
+        state.previous = "home";
+        state.error = "";
+        state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
+      }
       render();
     });
+  }
+  await refreshSession();
+  if (recoveryRequested) {
+    if (state.session) {
+      state.screen = "reset-password";
+      state.previous = "home";
+      state.notice = "Lien validé. Choisissez maintenant votre nouveau mot de passe.";
+      render();
+    } else {
+      state.screen = "forgot-password";
+      state.previous = "auth";
+      state.error = "Ce lien de récupération n'est plus valable. Demandez-en un nouveau.";
+      render();
+    }
+    setupServiceWorkerUpdates();
+    return;
   }
   const resumed = await resumeAfterBoot();
   if (!resumed) render();

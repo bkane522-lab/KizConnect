@@ -27,7 +27,7 @@ export async function getSession() {
 
 export function onAuthStateChange(callback) {
   if (!supabaseConfigured) return () => {};
-  const { data } = supabase.auth.onAuthStateChange((_event, session) => callback(session));
+  const { data } = supabase.auth.onAuthStateChange((event, session) => callback(session, event));
   return () => data.subscription.unsubscribe();
 }
 
@@ -48,6 +48,22 @@ export async function signIn({ email, password }) {
 export async function signOut() {
   needSupabase();
   resultOrThrow(await supabase.auth.signOut());
+}
+
+export async function requestPasswordReset(email, redirectTo) {
+  needSupabase();
+  const cleanEmail = String(email || "").trim();
+  if (!cleanEmail) throw new Error("EMAIL_REQUIRED");
+  return resultOrThrow(await supabase.auth.resetPasswordForEmail(cleanEmail, {
+    redirectTo
+  }));
+}
+
+export async function updatePassword(password) {
+  needSupabase();
+  const value = String(password || "");
+  if (value.length < 8) throw new Error("PASSWORD_TOO_SHORT");
+  return resultOrThrow(await supabase.auth.updateUser({ password: value }));
 }
 
 export async function getOwnProfile(userId) {
@@ -300,7 +316,7 @@ export async function listTrainingMatches() {
   return resultOrThrow(await supabase.rpc("list_training_matches"));
 }
 
-export async function submitBetaFeedback({ userId, category, message, appVersion = "3.6.2" }) {
+export async function submitBetaFeedback({ userId, category, message, appVersion = "3.6.3" }) {
   needSupabase();
   return resultOrThrow(await supabase.rpc("submit_beta_feedback", {
     feedback_category: category,
