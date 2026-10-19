@@ -1,16 +1,18 @@
-## V3.6.2 — Simple UX
+## V3.6.3 — Mot de passe oublié
 
-Cette version ne rajoute aucune fonctionnalité. Elle simplifie **Trouver un partenaire** pour que le parcours soit compris immédiatement.
+Cette version ajoute un parcours simple et sécurisé de récupération de mot de passe, sans changer la base Supabase.
 
-- un seul bouton **RECHERCHER**, sans bouton sticky qui masque les filtres ;
-- ordre direct : **Où ? → Rayon → Styles → Niveaux → Rôles → Rechercher** ;
-- résultats placés immédiatement sous le formulaire ;
-- textes d'aide non indispensables supprimés ;
-- **Connexion training privée** transformée en petite option secondaire ;
-- **Trainings organisés** séparés clairement de la recherche partenaire ;
-- aucune nouvelle migration Supabase.
+- lien **Mot de passe oublié ?** sur l'écran de connexion ;
+- saisie de l'email puis envoi d'un lien Supabase ;
+- message générique pour ne pas révéler si un email possède un compte ;
+- écran **Nouveau mot de passe** après validation du lien ;
+- confirmation du nouveau mot de passe ;
+- retour connecté dans KizConnect après changement ;
+- message clair si le lien est invalide ou expiré ;
+- redirection de récupération vers `https://kiz-connect.vercel.app/?recovery=1` en production ;
+- aucune nouvelle migration SQL.
 
-# KizConnect V3.6.2
+# KizConnect V3.6.3
 
 **KizConnect — Trouvez avec qui danser.**
 
@@ -36,7 +38,7 @@ Les actions principales restent visibles et explicites. Les fonctions secondaire
 
 ## Supabase
 
-Aucune nouvelle migration pour V3.6.2. Conservez les migrations `001` à `004` déjà installées.
+Aucune nouvelle migration pour V3.6.3. Conservez les migrations `001` à `004` déjà installées.
 
 ## Installation locale
 
