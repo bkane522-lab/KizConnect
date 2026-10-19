@@ -115,3 +115,27 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 - Vérifier le scroll automatique vers les résultats.
 - Vérifier que la carte **Connexion training** est compacte mais reste fonctionnelle.
 - Vérifier que **Training avec date** reste accessible et que les demandes existantes s'affichent.
+
+## V3.6.2 — Simple UX
+
+- Ouvrir **Trouver un partenaire** sur mobile : aucun bouton ne doit masquer les filtres.
+- Vérifier l'ordre : Où ? → Rayon → Styles → Niveaux → Rôles → RECHERCHER.
+- Vérifier qu'il n'existe qu'un seul bouton RECHERCHER dans le formulaire.
+- Lancer une recherche : les résultats doivent apparaître immédiatement après le formulaire.
+- Vérifier que Connexion training privée apparaît après les résultats comme option secondaire.
+- Vérifier que Trainings organisés est clairement séparé de la recherche partenaire.
+- Vérifier que les fonctions V3.6 (multi-sélection, rayon, rôle) fonctionnent toujours.
+
+
+## V3.6.3 — récupération de mot de passe
+
+1. Ouvrir **Connexion** et vérifier la présence de **Mot de passe oublié ?**.
+2. Saisir l'email d'un compte de test et envoyer le lien.
+3. Vérifier qu'un message générique s'affiche, sans confirmer publiquement l'existence du compte.
+4. Ouvrir le nouvel email de récupération et vérifier la redirection vers KizConnect.
+5. Saisir deux mots de passe différents : la modification doit être refusée côté interface.
+6. Saisir deux fois un mot de passe d'au moins 8 caractères : la modification doit réussir.
+7. Vérifier que l'utilisateur reste connecté après le changement.
+8. Se déconnecter puis se reconnecter avec le nouveau mot de passe.
+9. Réutiliser un ancien lien ou attendre son expiration : un message clair doit inviter à demander un nouveau lien.
+10. Vérifier qu'aucune migration SQL supplémentaire n'est nécessaire.
