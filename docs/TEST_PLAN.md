@@ -139,3 +139,15 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 8. Se déconnecter puis se reconnecter avec le nouveau mot de passe.
 9. Réutiliser un ancien lien ou attendre son expiration : un message clair doit inviter à demander un nouveau lien.
 10. Vérifier qu'aucune migration SQL supplémentaire n'est nécessaire.
+
+
+## V3.6.5 — récupération par code
+
+1. Depuis Connexion, ouvrir **Mot de passe oublié ?**.
+2. Saisir l'email et vérifier l'arrivée d'un code à 6 chiffres.
+3. Saisir un code incorrect : message clair attendu.
+4. Saisir le dernier code correct : écran **Nouveau mot de passe** attendu.
+5. Enregistrer deux mots de passe différents : refus attendu.
+6. Enregistrer un mot de passe valide : retour connecté attendu.
+7. Tester **Renvoyer un code** : seul le dernier code reçu doit être utilisé.
+8. Vérifier qu'aucun lien `/auth/v1/verify` n'est nécessaire dans le parcours utilisateur.
