@@ -1,4 +1,4 @@
-# KizConnect V3.7 — Home Premium UX
+# KizConnect V3.9 — Neon Dance & Map
 
 **KizConnect — Trouvez avec qui danser.**
 
@@ -57,3 +57,11 @@ npm run build
 
 ## V3.8
 Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
+
+
+## V3.9 — Neon Dance & Map
+- le cœur est supprimé : identité visuelle centrée sur le mouvement, les trajectoires et les pas de danse ;
+- la carte « Partenaires sur la carte » ouvre une vraie carte OpenStreetMap ;
+- les profils sont positionnés à partir de leur ville, jamais de leur adresse exacte ni du GPS ;
+- la recherche classique et tous les parcours V3.8 restent disponibles ;
+- aucune migration SQL supplémentaire.
