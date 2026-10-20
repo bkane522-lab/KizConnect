@@ -45,36 +45,24 @@ export async function signIn({ email, password }) {
   return resultOrThrow(await supabase.auth.signInWithPassword({ email, password }));
 }
 
+
+export async function signInWithGoogle() {
+  needSupabase();
+  const redirectTo = `${window.location.origin}/`;
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      queryParams: { prompt: "select_account" }
+    }
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function signOut() {
   needSupabase();
   resultOrThrow(await supabase.auth.signOut());
-}
-
-export async function requestPasswordReset(email) {
-  needSupabase();
-  const cleanEmail = String(email || "").trim();
-  if (!cleanEmail) throw new Error("EMAIL_REQUIRED");
-  return resultOrThrow(await supabase.auth.resetPasswordForEmail(cleanEmail));
-}
-
-export async function verifyRecoveryCode(email, code) {
-  needSupabase();
-  const cleanEmail = String(email || "").trim();
-  const cleanCode = String(code || "").replace(/\D/g, "").trim();
-  if (!cleanEmail) throw new Error("EMAIL_REQUIRED");
-  if (!/^\d{6}$/.test(cleanCode)) throw new Error("RECOVERY_CODE_INVALID");
-  return resultOrThrow(await supabase.auth.verifyOtp({
-    email: cleanEmail,
-    token: cleanCode,
-    type: "recovery"
-  }));
-}
-
-export async function updatePassword(password) {
-  needSupabase();
-  const value = String(password || "");
-  if (value.length < 8) throw new Error("PASSWORD_TOO_SHORT");
-  return resultOrThrow(await supabase.auth.updateUser({ password: value }));
 }
 
 export async function getOwnProfile(userId) {

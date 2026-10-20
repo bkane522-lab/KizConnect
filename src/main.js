@@ -5,8 +5,8 @@ import { filterProfilesByRadius } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
-const RECOVERY_EMAIL_KEY = "kizconnect_recovery_email";
-const APP_VERSION = "3.6.5";
+const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
+const APP_VERSION = "3.6.6";
 
 const state = {
   screen: "home",
@@ -18,7 +18,6 @@ const state = {
   reportTarget: null,
   authMode: "signup",
   authReason: "",
-  recoveryEmail: sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "",
   trainingInterestIds: [],
   trainingMatches: [],
   notice: "",
@@ -520,62 +519,33 @@ function authView() {
   const signup = state.authMode === "signup";
   return `${pageHead(signup ? "Créer mon compte" : "Me connecter", state.authReason || "Votre compte est demandé uniquement quand il devient nécessaire.", state.previous || "home")}
     ${statusBlock()}
-    <form class="form-card" id="auth-form">
-      ${signup ? `<div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" autocomplete="nickname" /></div><div class="field"><label>Ville</label><input name="city" required maxlength="80" autocomplete="address-level2" /></div>` : ""}
-      <div class="field"><label>Email</label><input type="email" name="email" required maxlength="254" autocomplete="email" /></div>
-      <div class="field"><label>Mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="${signup ? "new-password" : "current-password"}" /><div class="help">8 caractères minimum.</div></div>
-      ${signup ? "" : `<button class="text-btn forgot-link" type="button" data-action="forgot-password">Mot de passe oublié ?</button>`}
-      <button class="primary" type="submit">${signup ? "CRÉER MON COMPTE" : "ME CONNECTER"}</button>
-    </form>
-    <button class="text-btn" data-action="toggle-auth">${signup ? "J'ai déjà un compte" : "Créer un compte"}</button>`;
-}
-
-function forgotPasswordView() {
-  return `${pageHead("Mot de passe oublié", "Recevez un code à 6 chiffres par email.", "auth")}
-    ${statusBlock()}
-    <form class="form-card" id="forgot-password-form">
-      <div class="field"><label>Email du compte</label><input type="email" name="email" required maxlength="254" autocomplete="email" placeholder="votre@email.fr" value="${escapeHtml(state.recoveryEmail || "")}" /></div>
-      <div class="help auth-help">Nous vous enverrons un code temporaire. Vous resterez dans KizConnect pour terminer la récupération.</div>
-      <button class="primary" type="submit">ENVOYER LE CODE</button>
-    </form>
-    <button class="text-btn" data-action="back-to-login">Retour à la connexion</button>`;
-}
-
-function verifyRecoveryCodeView() {
-  return `${pageHead("Saisir le code", `Code envoyé à ${state.recoveryEmail || "votre email"}.`, "forgot-password")}
-    ${statusBlock()}
-    <form class="form-card" id="recovery-code-form">
-      <div class="field">
-        <label>Code à 6 chiffres</label>
-        <input class="otp-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" name="code" required autocomplete="one-time-code" placeholder="000000" aria-describedby="otp-help" />
-        <div class="help" id="otp-help">Saisissez uniquement les 6 chiffres reçus par email.</div>
-      </div>
-      <button class="primary" type="submit">VALIDER LE CODE</button>
-    </form>
-    <div class="otp-actions">
-      <button class="text-btn" data-action="resend-recovery-code">Renvoyer un code</button>
-      <button class="text-btn" data-action="change-recovery-email">Changer l'email</button>
-    </div>`;
-}
-
-function resetPasswordView() {
-  return `${pageHead("Nouveau mot de passe", "Choisissez un nouveau mot de passe pour votre compte.", "home")}
-    ${statusBlock()}
-    <form class="form-card" id="reset-password-form">
-      <div class="field"><label>Nouveau mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="new-password" /><div class="help">8 caractères minimum.</div></div>
-      <div class="field"><label>Confirmer le mot de passe</label><input type="password" name="password_confirm" required minlength="8" maxlength="128" autocomplete="new-password" /></div>
-      <button class="primary" type="submit">ENREGISTRER LE NOUVEAU MOT DE PASSE</button>
-    </form>`;
+    <section class="auth-card">
+      <button class="google-auth-btn" type="button" data-action="google-auth" aria-label="Continuer avec Google">
+        <span class="google-g" aria-hidden="true">G</span>
+        <span>CONTINUER AVEC GOOGLE</span>
+      </button>
+      <p class="google-auth-note">Le moyen le plus simple : aucun mot de passe KizConnect à mémoriser.</p>
+      <div class="auth-separator" aria-hidden="true"><span>ou</span></div>
+      <form class="form-card auth-email-form" id="auth-form">
+        ${signup ? `<div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" autocomplete="nickname" /></div><div class="field"><label>Ville</label><input name="city" required maxlength="80" autocomplete="address-level2" /></div>` : ""}
+        <div class="field"><label>Email</label><input type="email" name="email" required maxlength="254" autocomplete="email" /></div>
+        <div class="field"><label>Mot de passe</label><input type="password" name="password" required minlength="8" maxlength="128" autocomplete="${signup ? "new-password" : "current-password"}" /><div class="help">8 caractères minimum.</div></div>
+        <button class="primary" type="submit">${signup ? "CRÉER AVEC EMAIL" : "ME CONNECTER AVEC EMAIL"}</button>
+      </form>
+      <button class="text-btn" data-action="toggle-auth">${signup ? "J'ai déjà un compte" : "Créer un compte avec email"}</button>
+    </section>`;
 }
 
 function ownProfileView() {
   if (!state.session) return authView();
   const styles = Array.isArray(state.profile?.styles) ? state.profile.styles : [];
+  const googleName = state.session?.user?.user_metadata?.full_name || state.session?.user?.user_metadata?.name || "";
+  const profileName = state.profile?.display_name === "Danseur" && googleName ? googleName : (state.profile?.display_name || "");
   return `${pageHead("Mon profil", "Seulement les informations utiles aux autres danseurs.")}
     ${statusBlock()}
     <form class="form-card" id="profile-form">
       <div class="profile-photo-row">${avatar(state.profile, "large")}<div><strong>Photo facultative</strong><div class="help">JPG, PNG ou WebP · 2 Mo maximum.</div><input class="file-input" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" /></div></div>
-      <div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" value="${escapeHtml(state.profile?.display_name || "")}" /></div>
+      <div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" value="${escapeHtml(profileName)}" /></div>
       <div class="field"><label>Ville</label><input name="city" required maxlength="80" value="${escapeHtml(state.profile?.city || "")}" /></div>
       <div class="field"><label>Niveau</label><select name="level"><option value="">Choisir</option>${LEVELS.map(x => `<option ${state.profile?.level === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
       <div class="field"><label>Rôle dans la danse <span class="help">(facultatif)</span></label><select name="dance_role"><option value="">Non précisé</option>${DANCE_ROLES.map(x => `<option value="${escapeHtml(x)}" ${state.profile?.dance_role === x ? "selected" : ""}>${escapeHtml(x)}</option>`).join("")}</select><div class="help">Leader, Follower ou Les deux. Ce choix n'est jamais lié au genre.</div></div>
@@ -749,11 +719,6 @@ function friendlyError(error, fallback) {
   if (message.includes("target unavailable")) return "Cette personne ne participe plus à Connexion training.";
   if (message.includes("pair blocked")) return "Cette connexion n’est pas disponible.";
   if (message.includes("invalid login credentials")) return "Votre email ou votre mot de passe est incorrect.";
-  if (message.includes("email_required")) return "Saisissez votre adresse email.";
-  if (message.includes("password_too_short")) return "Le mot de passe doit contenir au moins 8 caractères.";
-  if (message.includes("same password")) return "Choisissez un mot de passe différent de l'ancien.";
-  if (message.includes("recovery_code_invalid")) return "Le code doit contenir exactement 6 chiffres.";
-  if (message.includes("otp_expired") || message.includes("token has expired") || message.includes("invalid otp") || message.includes("otp") || message.includes("expired")) return "Code invalide ou expiré. Demandez un nouveau code.";
   if (message.includes("user already registered") || message.includes("already registered")) return "Un compte existe déjà avec cet email.";
   return fallback;
 }
@@ -768,9 +733,6 @@ function render() {
     case "carpool-search": content = carpoolSearchView(); break;
     case "carpool-offer": content = carpoolOfferView(); break;
     case "auth": content = authView(); break;
-    case "forgot-password": content = forgotPasswordView(); break;
-    case "verify-recovery-code": content = verifyRecoveryCodeView(); break;
-    case "reset-password": content = resetPasswordView(); break;
     case "profile": content = ownProfileView(); break;
     case "public-profile": content = publicProfileView(); break;
     case "messages": content = messagesView(); break;
@@ -870,62 +832,6 @@ function wireForms() {
     }
   });
 
-  document.querySelector("#forgot-password-form")?.addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!api.isConfigured()) { setFlash("Supabase n'est pas configuré.", "error"); render(); return; }
-    const fd = new FormData(event.currentTarget);
-    const email = String(fd.get("email") || "").trim();
-    try {
-      await api.requestPasswordReset(email);
-      state.recoveryEmail = email;
-      sessionStorage.setItem(RECOVERY_EMAIL_KEY, email);
-      setFlash("Si un compte existe avec cet email, un code à 6 chiffres vient d'être envoyé.");
-      go("verify-recovery-code", { preserveFlash: true });
-    } catch (error) {
-      setFlash(friendlyError(error, "Impossible d'envoyer le code pour le moment. Réessayez dans quelques instants."), "error");
-      render();
-    }
-  });
-
-  document.querySelector("#recovery-code-form")?.addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!api.isConfigured()) { setFlash("Supabase n'est pas configuré.", "error"); render(); return; }
-    const fd = new FormData(event.currentTarget);
-    const code = String(fd.get("code") || "").replace(/\D/g, "");
-    const email = state.recoveryEmail || sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "";
-    if (!email) { setFlash("Saisissez d'abord l'email de votre compte.", "error"); go("forgot-password", { preserveFlash: true }); return; }
-    if (!/^\d{6}$/.test(code)) { setFlash("Le code doit contenir exactement 6 chiffres.", "error"); render(); return; }
-    try {
-      await api.verifyRecoveryCode(email, code);
-      await refreshSession();
-      setFlash("Code validé. Choisissez maintenant votre nouveau mot de passe.");
-      go("reset-password", { preserveFlash: true });
-    } catch (error) {
-      setFlash(friendlyError(error, "Code invalide ou expiré. Vérifiez les 6 chiffres ou demandez un nouveau code."), "error");
-      render();
-    }
-  });
-
-  document.querySelector("#reset-password-form")?.addEventListener("submit", async event => {
-    event.preventDefault();
-    if (!state.session) { setFlash("Le code n’est plus valide. Demandez un nouveau code.", "error"); go("forgot-password", { preserveFlash: true }); return; }
-    const fd = new FormData(event.currentTarget);
-    const password = String(fd.get("password") || "");
-    const confirmation = String(fd.get("password_confirm") || "");
-    if (password !== confirmation) { setFlash("Les deux mots de passe ne sont pas identiques.", "error"); render(); return; }
-    try {
-      await api.updatePassword(password);
-      await refreshSession();
-      sessionStorage.removeItem(RECOVERY_EMAIL_KEY);
-      state.recoveryEmail = "";
-      setFlash("Mot de passe modifié. Vous êtes connecté.");
-      go("home", { preserveFlash: true });
-    } catch (error) {
-      setFlash(friendlyError(error, "Impossible de modifier le mot de passe."), "error");
-      render();
-    }
-  });
-
   document.querySelector("#profile-form")?.addEventListener("submit", async event => {
     event.preventDefault();
     if (!state.session) return;
@@ -946,7 +852,12 @@ function wireForms() {
         training_match_enabled: fd.get("training_match_enabled") === "on"
       });
       setFlash("Profil enregistré.");
-      render();
+      const pendingAfterProfile = readPendingAction();
+      if (pendingAfterProfile) {
+        await executePendingAction(pendingAfterProfile);
+      } else {
+        render();
+      }
     } catch (error) {
       setFlash(friendlyError(error, "Votre profil n'a pas pu être enregistré."), "error");
       render();
@@ -1018,18 +929,14 @@ app.addEventListener("click", async event => {
   if (action === "go") { go(button.dataset.screen); return; }
   if (action === "account") { if (state.session) go("profile"); else { state.authReason = ""; state.authMode = "login"; go("auth"); } return; }
   if (action === "toggle-auth") { state.authMode = state.authMode === "signup" ? "login" : "signup"; state.error = ""; state.notice = ""; render(); return; }
-  if (action === "forgot-password") { state.authReason = ""; go("forgot-password"); return; }
-  if (action === "back-to-login") { state.authMode = "login"; state.authReason = ""; go("auth"); return; }
-  if (action === "change-recovery-email") { go("forgot-password"); return; }
-  if (action === "resend-recovery-code") {
-    const email = state.recoveryEmail || sessionStorage.getItem(RECOVERY_EMAIL_KEY) || "";
-    if (!email) { go("forgot-password"); return; }
+  if (action === "google-auth") {
+    if (!api.isConfigured()) { setFlash("Supabase n'est pas configuré.", "error"); render(); return; }
     try {
-      await api.requestPasswordReset(email);
-      setFlash("Un nouveau code vient d'être envoyé. Utilisez uniquement le dernier code reçu.");
-      render();
+      sessionStorage.setItem(GOOGLE_AUTH_KEY, "1");
+      await api.signInWithGoogle();
     } catch (error) {
-      setFlash(friendlyError(error, "Impossible de renvoyer le code pour le moment."), "error");
+      sessionStorage.removeItem(GOOGLE_AUTH_KEY);
+      setFlash(friendlyError(error, "Impossible d'ouvrir la connexion Google."), "error");
       render();
     }
     return;
@@ -1131,6 +1038,7 @@ app.addEventListener("click", async event => {
     state.trainingInterestIds = [];
     state.trainingMatches = [];
     savePendingAction(null);
+    sessionStorage.removeItem(GOOGLE_AUTH_KEY);
     setFlash("Vous êtes déconnecté.");
     go("home", { preserveFlash: true });
   }
@@ -1149,6 +1057,18 @@ async function refreshSession() {
 }
 
 async function resumeAfterBoot() {
+  const googleReturn = sessionStorage.getItem(GOOGLE_AUTH_KEY) === "1";
+  if (googleReturn && state.session) {
+    sessionStorage.removeItem(GOOGLE_AUTH_KEY);
+    const missingCity = !String(state.profile?.city || "").trim();
+    const genericName = !String(state.profile?.display_name || "").trim() || state.profile?.display_name === "Danseur";
+    if (missingCity || genericName) {
+      setFlash("Connexion Google réussie. Complétez votre profil une seule fois pour continuer.");
+      go("profile", { preserveFlash: true });
+      return true;
+    }
+  }
+
   const pending = readPendingAction();
   if (!state.session || !pending) return false;
   if (pending.type === "report-user") {
@@ -1195,16 +1115,20 @@ async function setupServiceWorkerUpdates() {
 }
 
 async function boot() {
+  const url = new URL(window.location.href);
+  const oauthError = url.searchParams.get("error_description") || url.searchParams.get("error");
+  if (oauthError) {
+    sessionStorage.removeItem(GOOGLE_AUTH_KEY);
+    setFlash("La connexion Google n'a pas pu être terminée. Réessayez.", "error");
+    url.searchParams.delete("error");
+    url.searchParams.delete("error_code");
+    url.searchParams.delete("error_description");
+    history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+  }
   if (api.isConfigured()) {
     api.onAuthStateChange(async (session, event) => {
       state.session = session;
       await loadOwnProfile();
-      if (event === "PASSWORD_RECOVERY") {
-        state.screen = "reset-password";
-        state.previous = "home";
-        state.error = "";
-        state.notice = "Code validé. Choisissez maintenant votre nouveau mot de passe.";
-      }
       render();
     });
   }

@@ -1450,50 +1450,66 @@ label { color: #fcf6ff; }
 }
 
 
-/* V3.6.3 — récupération de mot de passe */
-.forgot-link {
-  width: auto;
-  min-height: 38px;
-  margin: -6px 0 10px auto;
-  display: block;
-  text-align: right;
-  color: #e3a6ff;
-  text-decoration: underline;
-  text-decoration-color: rgba(227, 166, 255, .35);
-  text-underline-offset: 4px;
+/* V3.6.6 — Connexion Google */
+.auth-card {
+  display: grid;
+  gap: 14px;
 }
-.forgot-link:hover, .forgot-link:focus-visible {
-  color: #fff;
-  text-decoration-color: rgba(255, 255, 255, .8);
-}
-.auth-help {
-  margin: -2px 0 16px;
-  line-height: 1.5;
-}
-@media (max-width: 640px) {
-  .forgot-link {
-    min-height: 44px;
-    margin-bottom: 8px;
-  }
-}
-
-
-/* V3.6.5 — récupération par code à 6 chiffres */
-.otp-input {
-  text-align: center;
-  letter-spacing: .42em;
-  font-size: clamp(1.5rem, 7vw, 2rem);
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-.otp-actions {
+.google-auth-btn {
+  width: 100%;
+  min-height: 54px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
+  align-items: center;
   justify-content: center;
-  margin-top: 8px;
+  gap: 12px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 16px;
+  background: rgba(255,255,255,.96);
+  color: #17151f;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: .02em;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22), 0 0 22px rgba(132,72,255,.12);
+  cursor: pointer;
 }
-.otp-actions .text-btn {
-  width: auto;
-  min-height: 44px;
+.google-auth-btn:hover,
+.google-auth-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 15px 36px rgba(0,0,0,.26), 0 0 28px rgba(132,72,255,.2);
 }
+.google-g {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#4285f4 0 25%,#34a853 25% 50%,#fbbc05 50% 75%,#ea4335 75%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.35);
+}
+.google-auth-note {
+  margin: -4px 4px 0;
+  text-align: center;
+  color: var(--muted, #aaa4bd);
+  font-size: .86rem;
+  line-height: 1.35;
+}
+.auth-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted, #aaa4bd);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.auth-separator::before,
+.auth-separator::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, rgba(176,124,255,.25), transparent);
+}
+.auth-email-form { margin: 0; }
