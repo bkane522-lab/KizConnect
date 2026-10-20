@@ -127,27 +127,12 @@ La V3 peut être considérée comme bêta validée seulement lorsque tous les te
 - Vérifier que les fonctions V3.6 (multi-sélection, rayon, rôle) fonctionnent toujours.
 
 
-## V3.6.3 — récupération de mot de passe
 
-1. Ouvrir **Connexion** et vérifier la présence de **Mot de passe oublié ?**.
-2. Saisir l'email d'un compte de test et envoyer le lien.
-3. Vérifier qu'un message générique s'affiche, sans confirmer publiquement l'existence du compte.
-4. Ouvrir le nouvel email de récupération et vérifier la redirection vers KizConnect.
-5. Saisir deux mots de passe différents : la modification doit être refusée côté interface.
-6. Saisir deux fois un mot de passe d'au moins 8 caractères : la modification doit réussir.
-7. Vérifier que l'utilisateur reste connecté après le changement.
-8. Se déconnecter puis se reconnecter avec le nouveau mot de passe.
-9. Réutiliser un ancien lien ou attendre son expiration : un message clair doit inviter à demander un nouveau lien.
-10. Vérifier qu'aucune migration SQL supplémentaire n'est nécessaire.
+## V3.6.6 — Connexion Google
 
-
-## V3.6.5 — récupération par code
-
-1. Depuis Connexion, ouvrir **Mot de passe oublié ?**.
-2. Saisir l'email et vérifier l'arrivée d'un code à 6 chiffres.
-3. Saisir un code incorrect : message clair attendu.
-4. Saisir le dernier code correct : écran **Nouveau mot de passe** attendu.
-5. Enregistrer deux mots de passe différents : refus attendu.
-6. Enregistrer un mot de passe valide : retour connecté attendu.
-7. Tester **Renvoyer un code** : seul le dernier code reçu doit être utilisé.
-8. Vérifier qu'aucun lien `/auth/v1/verify` n'est nécessaire dans le parcours utilisateur.
+1. Ouvrir **Connexion** et vérifier que **Continuer avec Google** est l'action la plus visible.
+2. Se connecter avec un compte Google déjà lié au même email qu'un compte KizConnect existant : vérifier que le compte reste accessible.
+3. Se connecter avec un nouveau compte Google : si le profil n'a pas de ville, KizConnect doit demander de compléter le profil une seule fois.
+4. Depuis un profil public, cliquer sur **Envoyer un message** sans être connecté, choisir Google, puis vérifier que l'action reprend après la connexion.
+5. Vérifier que la connexion email + mot de passe existante fonctionne toujours.
+6. Se déconnecter puis se reconnecter avec Google.
