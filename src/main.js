@@ -159,46 +159,29 @@ function homeIcon(type) {
 
 function homeView() {
   return `${statusBlock()}
-    <section class="home-core" aria-labelledby="home-title">
-      <section class="home-intro">
-        <div class="home-intro-copy">
-          <span class="eyebrow">DANSE • RENCONTRE • PARTAGE</span>
-          <div class="home-kicker"><span class="pulse-dot"></span> KIZ CONNECT</div>
-          <h1 id="home-title">Trouvez avec qui danser.</h1>
-          <p class="lead">Partenaire, covoiturage, messages. Allez directement à l’essentiel.</p>
-          <div class="home-intro-promise"><strong>La danse rapproche.</strong><span>Simple. Humain. Accessible.</span></div>
-        </div>
-        <div class="home-mini-art" aria-hidden="true">
-          <div class="mini-glow"></div>
-          <img src="/assets/kizconnect-symbol.png" alt="" />
-        </div>
-      </section>
-
-      <section class="home-actions home-actions-priority" aria-labelledby="home-actions-title">
-        <div class="home-section-head compact">
-          <span class="eyebrow">DIRECTEMENT À L’ESSENTIEL</span>
-          <h2 id="home-actions-title">Que cherchez-vous ?</h2>
-          <p>Choisissez votre besoin.</p>
-        </div>
-        <div class="primary-menu home-priority-menu" aria-label="Fonctions principales">
-          <button class="big-choice featured-choice" data-action="go" data-screen="partners">
-            <span class="choice-icon" aria-hidden="true">${homeIcon("partner")}</span><span><strong>TROUVER UN PARTENAIRE</strong><span>Ville, style et niveau.</span></span>
-          </button>
-          <button class="big-choice" data-action="go" data-screen="carpool">
-            <span class="choice-icon" aria-hidden="true">${homeIcon("car")}</span><span><strong>COVOITURAGE</strong><span>Chercher ou proposer des places.</span></span>
-          </button>
-          <button class="big-choice" data-action="messages">
-            <span class="choice-icon" aria-hidden="true">${homeIcon("message")}</span><span><strong>MES MESSAGES</strong><span>Retrouvez vos conversations.</span></span>
-          </button>
-        </div>
-      </section>
+    <section class="neo-hero"><div class="neo-hero-copy"><span class="neo-kicker">KIZ CONNECT · BÊTA</span><h1>Trouvez avec qui <em>danser.</em></h1><p>Partenaire, covoiturage, messages.<br>Allez directement à l’essentiel.</p></div><div class="neo-hero-art" aria-hidden="true"><img src="/assets/kizconnect-symbol.png" alt=""></div></section>
+    <section class="neo-actions" aria-labelledby="neo-actions-title"><h2 id="neo-actions-title">Que cherchez-vous ?</h2>
+      <button class="neo-action neo-action-partner" data-action="go" data-screen="partners"><span class="neo-action-icon">${homeIcon("partner")}</span><span><strong>TROUVER UN PARTENAIRE</strong><small>Ville, style et niveau.</small></span><b>›</b></button>
+      <button class="neo-action neo-action-car" data-action="go" data-screen="carpool"><span class="neo-action-icon">${homeIcon("car")}</span><span><strong>COVOITURAGE</strong><small>Chercher ou proposer des places.</small></span><b>›</b></button>
+      <button class="neo-action neo-action-message" data-action="messages"><span class="neo-action-icon">${homeIcon("message")}</span><span><strong>MES MESSAGES</strong><small>Retrouvez vos conversations.</small></span><b>›</b></button>
     </section>
     ${state.session && state.profile?.training_match_enabled ? `<div id="home-training-match-alert"></div>` : ""}
-    <section class="beta-note" aria-label="Version bêta">
-      <div><strong>KizConnect est ouvert à tous les danseurs.</strong><span>Version bêta · Vos retours nous aident à améliorer l’app.</span></div>
-      <button class="secondary beta-feedback-btn" data-action="feedback">💬 Donner mon avis</button>
-    </section>
-    <div class="home-signature home-signature-compact"><span></span><p><strong>Ouvrir → Choisir → Rechercher → Contacter.</strong></p><span></span></div>`;
+    <section class="neo-community"><div><strong>KizConnect est ouvert à tous les danseurs.</strong><p>Version bêta · Vos retours nous aident à améliorer l’app.</p><button class="neo-feedback" data-action="feedback">☏ &nbsp; Donner mon avis <span>›</span></button></div><div class="neo-heart" aria-hidden="true">♡</div></section>
+    <section class="neo-discover"><div class="neo-section-heading"><h2>Découvrir</h2></div><div class="neo-discover-grid">
+      <button class="neo-discover-card neo-training" data-action="go" data-screen="partners"><span class="neo-mini-icon">▦</span><strong>Prochains<br>trainings</strong><small>Explorez les demandes de training.</small><b>›</b></button>
+      <button class="neo-discover-card neo-near" data-action="go" data-screen="partners"><span class="neo-mini-icon">⌖</span><strong>Partenaires<br>près de vous</strong><small>Recherchez autour de votre ville.</small><b>›</b></button>
+      <button class="neo-discover-card neo-chat" data-action="messages"><span class="neo-mini-icon">▤</span><strong>Vos<br>messages</strong><small>Retrouvez vos échanges.</small><b>›</b></button>
+    </div></section>
+    <section class="neo-benefits"><h2>Pourquoi KizConnect ?</h2><div class="neo-benefits-grid"><div><span>✦</span><strong>Simple</strong><small>Une app claire et intuitive.</small></div><div><span>ϟ</span><strong>Rapide</strong><small>Trouvez, échangez, organisez.</small></div><div><span>♧</span><strong>Entre danseurs</strong><small>Une communauté passionnée.</small></div></div></section>`;
+}
+function bottomNav() {
+  const selected = state.screen === "home" ? "home" : state.screen === "partners" ? "partners" : state.screen === "messages" || state.screen === "chat" ? "messages" : state.screen === "profile" ? "profile" : "";
+  return `<nav class="neo-bottom-nav" aria-label="Navigation principale">
+    <button data-action="home" class="${selected === "home" ? "active" : ""}" ${selected === "home" ? 'aria-current="page"' : ""}><span>⌂</span><small>Accueil</small></button>
+    <button data-action="go" data-screen="partners" class="${selected === "partners" ? "active" : ""}" ${selected === "partners" ? 'aria-current="page"' : ""}><span>⌕</span><small>Recherche</small></button>
+    <button data-action="messages" class="${selected === "messages" ? "active" : ""}" ${selected === "messages" ? 'aria-current="page"' : ""}><span>▤</span><small>Messages</small></button>
+    <button data-action="account" class="${selected === "profile" ? "active" : ""}" ${selected === "profile" ? 'aria-current="page"' : ""}><span>♙</span><small>Profil</small></button>
+  </nav>`;
 }
 
 function partnersView() {
@@ -743,7 +726,7 @@ function render() {
     case "feedback": content = feedbackView(); break;
     default: content = homeView();
   }
-  app.innerHTML = `<div class="app-shell">${header()}<main class="${state.screen === "home" ? "main-home" : ""}">${content}</main></div>`;
+  app.innerHTML = `<div class="app-shell">${header()}<main class="${state.screen === "home" ? "main-home" : ""}">${content}</main>${bottomNav()}</div>`;
   wireForms();
   if (state.screen === "home") loadHomeTrainingMatchAlert();
   if (state.screen === "partners") { loadTraining(); loadTrainingMatches(); }
