@@ -27,7 +27,7 @@ for (const file of required) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-if (pkg.version !== "3.9.0") failures.push("package.json n'est pas en version 3.9.0");
+if (pkg.version !== "3.9.1") failures.push("package.json n'est pas en version 3.9.1");
 
 const main = fs.readFileSync(path.join(root, "src/main.js"), "utf8");
 const api = fs.readFileSync(path.join(root, "src/api.js"), "utf8");
@@ -75,8 +75,8 @@ for (const expected of ["add column if not exists dance_role", "profiles_valid_d
 }
 
 if (failures.length) {
-  console.error("KizConnect V3.9 — échec du contrôle statique:\n- " + failures.join("\n- "));
+  console.error("KizConnect V3.9.1 — échec du contrôle statique:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("KizConnect V3.9 — contrôle statique OK.");
+console.log("KizConnect V3.9.1 — contrôle statique OK.");
