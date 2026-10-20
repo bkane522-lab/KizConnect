@@ -65,3 +65,9 @@ Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
 - les profils sont positionnés à partir de leur ville, jamais de leur adresse exacte ni du GPS ;
 - la recherche classique et tous les parcours V3.8 restent disponibles ;
 - aucune migration SQL supplémentaire.
+
+
+## V3.9.1 — Correctif mobile
+- Carte Leaflet intégrée au bundle Vite : plus de dépendance au CDN unpkg.
+- Accueil mobile compacté pour réduire fortement le scroll.
+- Aucun changement SQL Supabase.

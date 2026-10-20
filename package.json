@@ -1,7 +1,7 @@
 {
   "name": "kizconnect",
   "private": true,
-  "version": "3.9.0",
+  "version": "3.9.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,8 @@
     "check": "node tests/static-check.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.57.0"
+    "@supabase/supabase-js": "^2.57.0",
+    "leaflet": "^1.9.4"
   },
   "devDependencies": {
     "vite": "^7.1.4"
