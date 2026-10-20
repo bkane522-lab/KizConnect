@@ -1839,7 +1839,13 @@ label { color: #fcf6ff; }
 .neo-community p { margin:8px 0 14px; color:#dfc4e7; font-size:.85rem; max-width:78%; }
 .neo-feedback { position:relative; z-index:1; border:1px solid #c546f0; border-radius:15px; padding:10px 17px; background:#180826d9; color:#fff; font-weight:750; cursor:pointer; }
 .neo-feedback span { margin-left:15px; }
-.neo-heart { position:absolute; right:10px; bottom:-42px; font-size:11rem; line-height:1; color:#f246f5; text-shadow:0 0 20px #ff3ae3; opacity:.6; transform:rotate(-13deg); pointer-events:none; }
+.neo-dance-trail { position:absolute; right:0; top:0; bottom:0; width:42%; overflow:hidden; pointer-events:none; opacity:.88; background:radial-gradient(circle at 70% 55%,rgba(184,57,255,.20),transparent 58%); }
+.neo-dance-trail::before { content:""; position:absolute; inset:12% -18% 8% 4%; background:linear-gradient(120deg,transparent 24%,rgba(239,89,255,.13) 25%,transparent 27%),linear-gradient(18deg,transparent 45%,rgba(145,86,255,.11) 46%,transparent 48%); transform:skewX(-10deg); }
+.trail-line { position:absolute; width:160%; height:70px; border:3px solid transparent; border-top-color:#f25aff; border-radius:50%; filter:drop-shadow(0 0 8px #e44cff); opacity:.72; transform-origin:center; }
+.trail-a { left:-25%; top:37%; transform:rotate(-18deg); }
+.trail-b { left:-8%; top:59%; transform:rotate(13deg) scale(.78); border-top-color:#8258ff; }
+.step { position:absolute; width:14px; height:26px; border-radius:60% 55% 48% 52%; background:linear-gradient(180deg,#ffb1ff,#d14cff); box-shadow:0 0 12px #d94dff; opacity:.9; transform:rotate(26deg); }
+.step-1{left:42%;top:62%}.step-2{left:55%;top:48%;transform:rotate(-22deg)}.step-3{left:67%;top:64%;transform:rotate(22deg)}.step-4{left:78%;top:43%;transform:rotate(-18deg)}
 .neo-discover { padding:16px 12px; background:#10051e; }
 .neo-discover-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; }
 .neo-discover-card { position:relative; min-width:0; min-height:182px; padding:12px 9px; display:flex; flex-direction:column; text-align:left; color:white; border:1px solid #a936e5; border-radius:16px; background:radial-gradient(circle at 88% 25%,#9c24b666,transparent 50%),linear-gradient(145deg,#23053d,#110523); cursor:pointer; overflow:hidden; }
@@ -1862,3 +1868,29 @@ label { color: #fcf6ff; }
 .neo-bottom-nav button.active { color:#fb7df5; text-shadow:0 0 12px #ff55fa; }
 @media(max-width:390px) { .neo-hero { min-height:220px;padding:18px 16px; } .neo-hero-copy { width:80%; } .neo-hero h1 { font-size:2.05rem; } .neo-action { grid-template-columns:46px minmax(0,1fr) 13px; gap:10px; padding:10px; min-height:75px; } .neo-action-icon { width:45px;height:45px; } .neo-action-icon svg { width:24px;height:24px; } .neo-action strong { font-size:.77rem; } .neo-action small { font-size:.68rem; } .neo-discover-card { min-height:174px; } .neo-benefits-grid>div { display:flex;flex-direction:column;text-align:center; } }
 @media(prefers-reduced-motion:reduce) { .neo-action:active,.neo-discover-card:active { transform:none; } }
+
+
+/* V3.9 — Dance identity + partner map */
+.partner-map-shell { margin:0 auto 24px; max-width:980px; padding:16px; border:1px solid rgba(205,75,251,.45); border-radius:24px; background:linear-gradient(145deg,rgba(27,6,43,.94),rgba(10,4,18,.98)); box-shadow:0 18px 50px rgba(0,0,0,.28); }
+.partner-map-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:14px; }
+.partner-map-head h3 { margin:4px 0 4px; color:#fff; font-size:1.45rem; }
+.partner-map-head p { margin:0; color:#cdb7d9; font-size:.84rem; line-height:1.4; max-width:620px; }
+.map-kicker { color:#ef80f7; font-size:.65rem; font-weight:800; letter-spacing:.16em; }
+.partner-map-canvas { position:relative; width:100%; height:min(58vh,560px); min-height:360px; overflow:hidden; border-radius:20px; border:1px solid rgba(195,78,255,.58); background:radial-gradient(circle at center,#251050,#090511 70%); box-shadow:inset 0 0 50px rgba(128,36,255,.14),0 0 30px rgba(128,36,255,.12); }
+.partner-map-canvas .leaflet-tile-pane { filter:saturate(.72) brightness(.72) hue-rotate(225deg); }
+.partner-map-canvas .leaflet-control-zoom a { background:#1b0a2a; color:#f6dcff; border-color:#7236a8; }
+.partner-map-canvas .leaflet-control-attribution { background:rgba(9,4,15,.75); color:#cdb7d9; font-size:.58rem; }
+.partner-map-canvas .leaflet-control-attribution a { color:#ed8aff; }
+.map-loading { position:absolute; inset:0; display:grid; place-items:center; padding:30px; text-align:center; color:#d9c5e6; }
+.kc-map-popup { display:grid; gap:5px; min-width:150px; }
+.kc-map-popup strong { font-size:.92rem; color:#190423; }
+.kc-map-popup span { font-size:.75rem; color:#573f61; }
+.kc-map-popup button { margin-top:5px; border:0; border-radius:10px; padding:8px 10px; background:linear-gradient(135deg,#8f2ce4,#e84bdd); color:white; font-weight:750; cursor:pointer; }
+.map-count { margin-top:10px; padding:10px 13px; border-radius:14px; background:rgba(111,30,153,.16); color:#dac4e5; font-size:.8rem; }
+.map-count strong { color:#ff9bfa; font-size:1rem; }
+.map-privacy { margin:12px 2px 2px; color:#ad98b7; font-size:.72rem; line-height:1.45; }
+.neo-near::before { content:""; position:absolute; inset:0; opacity:.22; background-image:linear-gradient(rgba(142,88,255,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(142,88,255,.55) 1px,transparent 1px),radial-gradient(circle at 72% 33%,#fd68f4 0 4px,transparent 5px),radial-gradient(circle at 43% 58%,#9b72ff 0 4px,transparent 5px); background-size:24px 24px,24px 24px,100% 100%,100% 100%; transform:rotate(-7deg) scale(1.2); }
+.neo-near > * { position:relative; z-index:1; }
+.neo-community { isolation:isolate; }
+.neo-community > div:first-child { position:relative; z-index:2; }
+@media(max-width:620px){ .partner-map-head{align-items:stretch;flex-direction:column}.partner-map-head .compact-btn{width:100%}.partner-map-canvas{height:54vh;min-height:330px}.neo-dance-trail{width:48%;opacity:.72}.neo-community p{max-width:72%} }

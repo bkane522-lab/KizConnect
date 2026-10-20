@@ -1,12 +1,12 @@
 import "./styles.css";
 import * as api from "./api.js";
 import { DANCE_STYLES, LEVELS, DANCE_ROLES, REPORT_CATEGORIES } from "./config.js";
-import { filterProfilesByRadius } from "./geo.js";
+import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
 
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
 const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
-const APP_VERSION = "3.6.6";
+const APP_VERSION = "3.9.0";
 
 const state = {
   screen: "home",
@@ -166,22 +166,104 @@ function homeView() {
       <button class="neo-action neo-action-message" data-action="messages"><span class="neo-action-icon">${homeIcon("message")}</span><span><strong>MES MESSAGES</strong><small>Retrouvez vos conversations.</small></span><b>›</b></button>
     </section>
     ${state.session && state.profile?.training_match_enabled ? `<div id="home-training-match-alert"></div>` : ""}
-    <section class="neo-community"><div><strong>KizConnect est ouvert à tous les danseurs.</strong><p>Version bêta · Vos retours nous aident à améliorer l’app.</p><button class="neo-feedback" data-action="feedback">☏ &nbsp; Donner mon avis <span>›</span></button></div><div class="neo-heart" aria-hidden="true">♡</div></section>
+    <section class="neo-community"><div><strong>KizConnect est ouvert à tous les danseurs.</strong><p>Version bêta · Vos retours nous aident à améliorer l’app.</p><button class="neo-feedback" data-action="feedback">☏ &nbsp; Donner mon avis <span>›</span></button></div><div class="neo-dance-trail" aria-hidden="true"><span class="trail-line trail-a"></span><span class="trail-line trail-b"></span><i class="step step-1"></i><i class="step step-2"></i><i class="step step-3"></i><i class="step step-4"></i></div></section>
     <section class="neo-discover"><div class="neo-section-heading"><h2>Découvrir</h2></div><div class="neo-discover-grid">
       <button class="neo-discover-card neo-training" data-action="go" data-screen="partners"><span class="neo-mini-icon">▦</span><strong>Prochains<br>trainings</strong><small>Explorez les demandes de training.</small><b>›</b></button>
-      <button class="neo-discover-card neo-near" data-action="go" data-screen="partners"><span class="neo-mini-icon">⌖</span><strong>Partenaires<br>près de vous</strong><small>Recherchez autour de votre ville.</small><b>›</b></button>
+      <button class="neo-discover-card neo-near" data-action="go" data-screen="partner-map"><span class="neo-mini-icon">⌖</span><strong>Partenaires<br>sur la carte</strong><small>Visualisez les danseurs autour de votre ville.</small><b>›</b></button>
       <button class="neo-discover-card neo-chat" data-action="messages"><span class="neo-mini-icon">▤</span><strong>Vos<br>messages</strong><small>Retrouvez vos échanges.</small><b>›</b></button>
     </div></section>
     <section class="neo-benefits"><h2>Pourquoi KizConnect ?</h2><div class="neo-benefits-grid"><div><span>✦</span><strong>Simple</strong><small>Une app claire et intuitive.</small></div><div><span>ϟ</span><strong>Rapide</strong><small>Trouvez, échangez, organisez.</small></div><div><span>♧</span><strong>Entre danseurs</strong><small>Une communauté passionnée.</small></div></div></section>`;
 }
 function bottomNav() {
-  const selected = state.screen === "home" ? "home" : state.screen === "partners" ? "partners" : state.screen === "messages" || state.screen === "chat" ? "messages" : state.screen === "profile" ? "profile" : "";
+  const selected = state.screen === "home" ? "home" : (state.screen === "partners" || state.screen === "partner-map") ? "partners" : state.screen === "messages" || state.screen === "chat" ? "messages" : state.screen === "profile" ? "profile" : "";
   return `<nav class="neo-bottom-nav" aria-label="Navigation principale">
     <button data-action="home" class="${selected === "home" ? "active" : ""}" ${selected === "home" ? 'aria-current="page"' : ""}><span>⌂</span><small>Accueil</small></button>
     <button data-action="go" data-screen="partners" class="${selected === "partners" ? "active" : ""}" ${selected === "partners" ? 'aria-current="page"' : ""}><span>⌕</span><small>Recherche</small></button>
     <button data-action="messages" class="${selected === "messages" ? "active" : ""}" ${selected === "messages" ? 'aria-current="page"' : ""}><span>▤</span><small>Messages</small></button>
     <button data-action="account" class="${selected === "profile" ? "active" : ""}" ${selected === "profile" ? 'aria-current="page"' : ""}><span>♙</span><small>Profil</small></button>
   </nav>`;
+}
+
+function partnerMapView() {
+  return `${pageHead("Partenaires sur la carte", "Repérez les danseurs par ville, sans afficher d’adresse précise.", "home")}
+    ${statusBlock()}
+    <section class="partner-map-shell">
+      <div class="partner-map-head">
+        <div><span class="map-kicker">CARTE KIZCONNECT</span><h3>Autour de vous</h3><p>Les marqueurs correspondent à la ville renseignée dans les profils visibles.</p></div>
+        <button class="secondary compact-btn" data-action="go" data-screen="partners">FILTRES DE RECHERCHE</button>
+      </div>
+      <div id="partner-map" class="partner-map-canvas" role="region" aria-label="Carte des partenaires KizConnect"><div class="map-loading">Chargement de la carte…</div></div>
+      <div id="partner-map-list" class="partner-map-list"></div>
+      <p class="map-privacy">📍 KizConnect n’affiche pas votre position GPS exacte. La carte utilise uniquement la ville indiquée dans le profil.</p>
+    </section>`;
+}
+
+function loadLeaflet() {
+  if (window.L) return Promise.resolve(window.L);
+  return new Promise((resolve, reject) => {
+    if (!document.querySelector('link[data-kc-leaflet]')) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      link.dataset.kcLeaflet = '1';
+      document.head.appendChild(link);
+    }
+    const existing = document.querySelector('script[data-kc-leaflet]');
+    if (existing) { existing.addEventListener('load', () => resolve(window.L), { once:true }); existing.addEventListener('error', reject, { once:true }); return; }
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    script.dataset.kcLeaflet = '1';
+    script.onload = () => resolve(window.L);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function loadPartnerMap() {
+  const target = document.querySelector('#partner-map');
+  const list = document.querySelector('#partner-map-list');
+  if (!target) return;
+  if (!api.isConfigured()) { target.innerHTML = '<div class="map-loading">Connectez Supabase pour afficher les profils sur la carte.</div>'; return; }
+  try {
+    const [L, profiles, blockedIds] = await Promise.all([loadLeaflet(), api.searchPartners({ broad: true }), api.listBlockedIds(state.session?.user?.id)]);
+    if (!document.querySelector('#partner-map')) return;
+    const visible = (profiles || []).filter(p => p.id !== state.session?.user?.id && !blockedIds.includes(p.id) && String(p.city || '').trim());
+    const cityNames = [...new Set(visible.map(p => String(p.city || '').trim()).filter(Boolean))];
+    const coords = new Map();
+    for (let i = 0; i < cityNames.length; i += 6) {
+      const batch = cityNames.slice(i, i + 6);
+      const rows = await Promise.all(batch.map(async city => { try { return [city, await geocodeFrenchCity(city)]; } catch { return [city, null]; } }));
+      rows.forEach(([city, point]) => { if (point) coords.set(city, point); });
+    }
+    target.innerHTML = '';
+    const map = L.map(target, { zoomControl: true, scrollWheelZoom: false }).setView([46.603354, 1.888334], 5.5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap' }).addTo(map);
+    const bounds = [];
+    const mapped = [];
+    const cityOffsets = new Map();
+    for (const profile of visible) {
+      const city = String(profile.city || '').trim();
+      const point = coords.get(city);
+      if (!point) continue;
+      const index = cityOffsets.get(city) || 0;
+      cityOffsets.set(city, index + 1);
+      const angle = index * 1.9;
+      const radius = index ? 0.012 + Math.min(index, 6) * 0.003 : 0;
+      const lat = point.lat + Math.sin(angle) * radius;
+      const lon = point.lon + Math.cos(angle) * radius;
+      const marker = L.circleMarker([lat, lon], { radius: 9, color: '#f25aff', weight: 2, fillColor: '#7927ff', fillOpacity: .82 });
+      marker.bindPopup(`<div class="kc-map-popup"><strong>${escapeHtml(profile.display_name || 'Danseur')}</strong><span>📍 ${escapeHtml(city)}</span><button data-action="view-profile" data-id="${escapeHtml(profile.id)}">Voir le profil</button></div>`);
+      marker.addTo(map);
+      bounds.push([lat, lon]); mapped.push(profile);
+    }
+    if (bounds.length > 1) map.fitBounds(bounds, { padding: [35,35], maxZoom: 10 });
+    else if (bounds.length === 1) map.setView(bounds[0], 10);
+    if (!mapped.length) { target.innerHTML = '<div class="map-loading">Aucun partenaire localisable pour le moment.</div>'; }
+    if (list) list.innerHTML = mapped.length ? `<div class="map-count"><strong>${mapped.length}</strong> profil${mapped.length > 1 ? 's' : ''} placé${mapped.length > 1 ? 's' : ''} sur la carte</div>` : '';
+  } catch (error) {
+    console.error(error);
+    if (target) target.innerHTML = '<div class="map-loading">La carte est momentanément indisponible. Utilisez la recherche classique.</div>';
+  }
 }
 
 function partnersView() {
@@ -711,6 +793,7 @@ function render() {
   switch (state.screen) {
     case "home": content = homeView(); break;
     case "partners": content = partnersView(); break;
+    case "partner-map": content = partnerMapView(); break;
     case "training-create": content = trainingCreateView(); break;
     case "carpool": content = carpoolView(); break;
     case "carpool-search": content = carpoolSearchView(); break;
@@ -730,6 +813,7 @@ function render() {
   wireForms();
   if (state.screen === "home") loadHomeTrainingMatchAlert();
   if (state.screen === "partners") { loadTraining(); loadTrainingMatches(); }
+  if (state.screen === "partner-map") loadPartnerMap();
   if (state.screen === "messages") loadThreads();
   if (state.screen === "chat") loadChat();
   if (state.screen === "my-posts") loadMyPosts();
