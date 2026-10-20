@@ -1,4 +1,6 @@
 import "./styles.css";
+import * as L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import * as api from "./api.js";
 import { DANCE_STYLES, LEVELS, DANCE_ROLES, REPORT_CATEGORIES } from "./config.js";
 import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
@@ -6,7 +8,7 @@ import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
 const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
-const APP_VERSION = "3.9.0";
+const APP_VERSION = "3.9.1";
 
 const state = {
   screen: "home",
@@ -198,34 +200,13 @@ function partnerMapView() {
     </section>`;
 }
 
-function loadLeaflet() {
-  if (window.L) return Promise.resolve(window.L);
-  return new Promise((resolve, reject) => {
-    if (!document.querySelector('link[data-kc-leaflet]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-      link.dataset.kcLeaflet = '1';
-      document.head.appendChild(link);
-    }
-    const existing = document.querySelector('script[data-kc-leaflet]');
-    if (existing) { existing.addEventListener('load', () => resolve(window.L), { once:true }); existing.addEventListener('error', reject, { once:true }); return; }
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.dataset.kcLeaflet = '1';
-    script.onload = () => resolve(window.L);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
 async function loadPartnerMap() {
   const target = document.querySelector('#partner-map');
   const list = document.querySelector('#partner-map-list');
   if (!target) return;
   if (!api.isConfigured()) { target.innerHTML = '<div class="map-loading">Connectez Supabase pour afficher les profils sur la carte.</div>'; return; }
   try {
-    const [L, profiles, blockedIds] = await Promise.all([loadLeaflet(), api.searchPartners({ broad: true }), api.listBlockedIds(state.session?.user?.id)]);
+    const [profiles, blockedIds] = await Promise.all([api.searchPartners({ broad: true }), api.listBlockedIds(state.session?.user?.id)]);
     if (!document.querySelector('#partner-map')) return;
     const visible = (profiles || []).filter(p => p.id !== state.session?.user?.id && !blockedIds.includes(p.id) && String(p.city || '').trim());
     const cityNames = [...new Set(visible.map(p => String(p.city || '').trim()).filter(Boolean))];

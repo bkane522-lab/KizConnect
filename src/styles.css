@@ -1894,3 +1894,61 @@ label { color: #fcf6ff; }
 .neo-community { isolation:isolate; }
 .neo-community > div:first-child { position:relative; z-index:2; }
 @media(max-width:620px){ .partner-map-head{align-items:stretch;flex-direction:column}.partner-map-head .compact-btn{width:100%}.partner-map-canvas{height:54vh;min-height:330px}.neo-dance-trail{width:48%;opacity:.72}.neo-community p{max-width:72%} }
+
+
+/* V3.9.1 — Mobile compact + reliable bundled map */
+@media (max-width: 620px) {
+  .main-home { padding: 10px 10px 106px; }
+  .neo-hero,.neo-actions,.neo-community,.neo-discover,.neo-benefits { margin-bottom: 9px; border-radius: 19px; }
+  .neo-hero { min-height: 158px; padding: 16px 15px; }
+  .neo-hero-copy { width: 78%; }
+  .neo-kicker { font-size: .58rem; letter-spacing: .14em; }
+  .neo-hero h1 { margin: 8px 0 9px; font-size: 2rem; line-height: 1.01; }
+  .neo-hero p { font-size: .76rem; line-height: 1.32; }
+  .neo-hero-art { width: 40%; right: -3%; opacity: .48; }
+  .neo-hero-art img { max-height: 135px; }
+
+  .neo-actions { padding: 11px; }
+  .neo-actions h2,.neo-discover h2,.neo-benefits h2 { margin-bottom: 9px; font-size: 1.05rem; }
+  .neo-action { min-height: 62px; margin-top: 7px; padding: 7px 9px; border-radius: 15px; grid-template-columns: 42px minmax(0,1fr) 14px; gap: 9px; }
+  .neo-action-icon { width: 40px; height: 40px; border-radius: 12px; }
+  .neo-action-icon svg { width: 22px; height: 22px; }
+  .neo-action strong { font-size: .75rem; }
+  .neo-action small { margin-top: 2px; font-size: .62rem; }
+  .neo-action b { font-size: 1.4rem; }
+
+  .neo-community { min-height: 112px; padding: 13px 14px; }
+  .neo-community strong { display:block; max-width: 70%; font-size: .88rem; line-height:1.2; }
+  .neo-community p { max-width: 68%; margin: 5px 0 9px; font-size: .67rem; line-height:1.3; }
+  .neo-feedback { padding: 8px 12px; border-radius: 12px; font-size: .72rem; }
+  .neo-dance-trail { width: 42%; opacity: .56; }
+  .step { width: 10px; height: 19px; }
+
+  .neo-discover { padding: 11px 9px; }
+  .neo-discover-grid { gap: 6px; }
+  .neo-discover-card { min-height: 132px; padding: 9px 7px; border-radius: 13px; }
+  .neo-mini-icon { width: 31px; height: 31px; margin-bottom: 8px; border-radius: 11px; font-size: 1.08rem; }
+  .neo-discover-card strong { font-size: .72rem; line-height:1.08; }
+  .neo-discover-card small { margin-top: 5px; font-size: .56rem; line-height: 1.2; }
+  .neo-discover-card b { right: 6px; bottom: 2px; font-size: 1.35rem; }
+
+  .neo-benefits { padding: 10px; }
+  .neo-benefits h2 { font-size: .98rem; }
+  .neo-benefits-grid { gap: 4px; }
+  .neo-benefits-grid > div { grid-template-columns: 30px 1fr; gap: 1px 5px; }
+  .neo-benefits-grid span { width: 29px; height: 29px; font-size: 1rem; }
+  .neo-benefits-grid strong { font-size: .63rem; }
+  .neo-benefits-grid small { font-size: .51rem; line-height: 1.16; }
+
+  .neo-bottom-nav { bottom:max(6px,env(safe-area-inset-bottom)); width:calc(100% - 20px); padding:5px; border-radius:20px; }
+  .neo-bottom-nav button { min-height:44px; }
+  .neo-bottom-nav button span { font-size:1.35rem; }
+  .neo-bottom-nav button small { font-size:.61rem; }
+
+  .partner-map-shell { padding: 11px; border-radius: 19px; }
+  .partner-map-head { margin-bottom: 10px; gap: 9px; }
+  .partner-map-head h3 { font-size: 1.2rem; }
+  .partner-map-head p { font-size: .73rem; }
+  .map-kicker { font-size: .58rem; }
+  .partner-map-canvas { height: 52vh; min-height: 320px; border-radius: 16px; }
+}
