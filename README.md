@@ -1,8 +1,8 @@
-# KizConnect V3.6.6 — Connexion Google
+# KizConnect V3.7 — Home Premium UX
 
 **KizConnect — Trouvez avec qui danser.**
 
-Cette version simplifie l'accès au compte : **Continuer avec Google** devient le chemin recommandé.
+Cette version conserve la connexion Google validée et refond l’accueil pour donner une hiérarchie beaucoup plus claire : **Trouver un partenaire** devient l’action principale, tandis que covoiturage et messages restent accessibles immédiatement.
 
 ## Parcours recommandé
 
@@ -53,3 +53,7 @@ npm run dev
 npm run check
 npm run build
 ```
+
+
+## V3.8
+Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
