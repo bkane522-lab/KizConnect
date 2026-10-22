@@ -77,3 +77,10 @@ Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
 - La recherche partenaire retombe automatiquement sur les champs de profil de base si des colonnes optionnelles V3.4/V3.5 ne sont pas encore disponibles dans Supabase.
 - La carte réutilise cette recherche compatible et ne tombe plus en panne uniquement à cause d'une colonne optionnelle manquante.
 - Aucun SQL n'est requis pour la recherche et la carte de base. Les fonctions avancées nécessitent toujours les migrations 003/004.
+
+
+## V3.9.3 — Photos de profil jusqu'à 5 Mo
+- limite frontend portée à 5 Mo ;
+- texte d'interface mis à jour ;
+- bucket Supabase `avatars` porté à 5 Mo via la migration `005_kizconnect_v3_9_3_avatar_5mb.sql` ;
+- formats conservés : JPG, PNG et WebP.
