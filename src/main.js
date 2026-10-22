@@ -8,7 +8,7 @@ import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
 const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
-const APP_VERSION = "3.9.2";
+const APP_VERSION = "3.9.3";
 
 const state = {
   screen: "home",
@@ -590,7 +590,7 @@ function ownProfileView() {
   return `${pageHead("Mon profil", "Seulement les informations utiles aux autres danseurs.")}
     ${statusBlock()}
     <form class="form-card" id="profile-form">
-      <div class="profile-photo-row">${avatar(state.profile, "large")}<div><strong>Photo facultative</strong><div class="help">JPG, PNG ou WebP · 2 Mo maximum.</div><input class="file-input" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" /></div></div>
+      <div class="profile-photo-row">${avatar(state.profile, "large")}<div><strong>Photo facultative</strong><div class="help">JPG, PNG ou WebP · 5 Mo maximum.</div><input class="file-input" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" /></div></div>
       <div class="field"><label>Prénom ou pseudo</label><input name="display_name" required maxlength="50" value="${escapeHtml(profileName)}" /></div>
       <div class="field"><label>Ville</label><input name="city" required maxlength="80" value="${escapeHtml(state.profile?.city || "")}" /></div>
       <div class="field"><label>Niveau</label><select name="level"><option value="">Choisir</option>${LEVELS.map(x => `<option ${state.profile?.level === x ? "selected" : ""}>${x}</option>`).join("")}</select></div>
@@ -755,7 +755,7 @@ function friendlyError(error, fallback) {
   const message = String(error?.message || "").toLowerCase();
   if (error?.code === "SUPABASE_NOT_CONFIGURED") return "Supabase n'est pas encore configuré.";
   if (error?.code === "AVATAR_TYPE") return "Choisissez une image JPG, PNG ou WebP.";
-  if (error?.code === "AVATAR_SIZE") return "La photo doit faire moins de 2 Mo.";
+  if (error?.code === "AVATAR_SIZE") return "La photo doit faire moins de 5 Mo.";
   if (message.includes("rate_limit_message")) return "Vous envoyez trop de messages. Réessayez dans une minute.";
   if (message.includes("rate_limit_listing")) return "Vous avez publié plusieurs annonces récemment. Réessayez un peu plus tard.";
   if (message.includes("feedback rate limited")) return "Merci pour votre retour. Attendez quelques secondes avant d’en envoyer un autre.";
