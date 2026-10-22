@@ -8,7 +8,7 @@ import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
 const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
-const APP_VERSION = "3.9.1";
+const APP_VERSION = "3.9.2";
 
 const state = {
   screen: "home",

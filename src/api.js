@@ -119,20 +119,43 @@ export async function uploadAvatar(userId, file) {
 
 export async function searchPartners({ city = "", styles = [], levels = [], danceRoles = [], broad = false }) {
   needSupabase();
-  let query = supabase
-    .from("profiles")
-    .select("id,display_name,city,level,dance_role,styles,bio,avatar_url,training_match_enabled,updated_at")
-    .eq("is_visible", true)
-    .limit(broad ? 120 : 50);
-  if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
-  if (styles.length) query = query.overlaps("styles", styles);
-  if (levels.length) query = query.in("level", levels);
-  if (danceRoles.length) {
-    const acceptedRoles = new Set(danceRoles);
-    if (danceRoles.includes("Leader") || danceRoles.includes("Follower")) acceptedRoles.add("Les deux");
-    query = query.in("dance_role", [...acceptedRoles]);
-  }
-  return resultOrThrow(await query.order("updated_at", { ascending: false }));
+
+  const buildQuery = (fields, useRoleFilter = true) => {
+    let query = supabase
+      .from("profiles")
+      .select(fields)
+      .eq("is_visible", true)
+      .limit(broad ? 120 : 50);
+
+    if (city.trim() && !broad) query = query.ilike("city", `%${city.trim()}%`);
+    if (styles.length) query = query.overlaps("styles", styles);
+    if (levels.length) query = query.in("level", levels);
+    if (useRoleFilter && danceRoles.length) {
+      const acceptedRoles = new Set(danceRoles);
+      if (danceRoles.includes("Leader") || danceRoles.includes("Follower")) acceptedRoles.add("Les deux");
+      query = query.in("dance_role", [...acceptedRoles]);
+    }
+    return query.order("updated_at", { ascending: false });
+  };
+
+  // Schéma actuel (V3.4/V3.5+) : inclut rôle et connexion training.
+  const fullFields = "id,display_name,city,level,dance_role,styles,bio,avatar_url,training_match_enabled,updated_at";
+  const full = await buildQuery(fullFields, true);
+  if (!full.error) return full.data || [];
+
+  // Compatibilité avec une base qui n'a pas encore reçu toutes les migrations.
+  // On ne bloque jamais la recherche ni la carte à cause d'une colonne optionnelle.
+  const missingColumn = full.error?.code === "42703" || full.error?.code === "PGRST204" || /column|schema cache/i.test(full.error?.message || "");
+  if (!missingColumn) throw full.error;
+
+  const compatFields = "id,display_name,city,level,styles,bio,avatar_url,updated_at";
+  const compat = await buildQuery(compatFields, false);
+  if (compat.error) throw compat.error;
+  return (compat.data || []).map(profile => ({
+    ...profile,
+    dance_role: null,
+    training_match_enabled: false
+  }));
 }
 
 export async function listTrainingRequests() {
