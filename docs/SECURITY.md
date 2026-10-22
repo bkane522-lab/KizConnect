@@ -46,7 +46,7 @@ Ces limites sont une première protection, pas un système complet de modératio
 
 ## Photos
 
-Le bucket `avatars` est public en lecture car la photo fait partie du profil public. L'écriture, la modification et la suppression sont limitées au dossier portant l'UUID de l'utilisateur connecté. Taille maximale : 2 Mo. Types acceptés : JPEG, PNG, WebP.
+Le bucket `avatars` est public en lecture car la photo fait partie du profil public. L'écriture, la modification et la suppression sont limitées au dossier portant l'UUID de l'utilisateur connecté. Taille maximale : 5 Mo. Types acceptés : JPEG, PNG, WebP.
 
 ## Données privées
 

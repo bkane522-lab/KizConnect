@@ -1,3 +1,12 @@
+# KizConnect V3.7 — Test plan
+
+## Accueil Premium UX
+- Vérifier que le CTA **Trouver un partenaire** est visible immédiatement sur mobile.
+- Vérifier que Covoiturage et Messages sont accessibles en un toucher.
+- Vérifier que le bloc bêta reste compact et lisible.
+- Vérifier les largeurs 360 px, 390 px, 430 px et desktop.
+- Vérifier qu’aucune fonction existante n’est modifiée.
+
 # Plan de test V3 — avant publication
 
 Ce plan nécessite un vrai projet Supabase et deux comptes de test distincts, par exemple **Compte A** et **Compte B**.
@@ -60,8 +69,8 @@ Ce plan nécessite un vrai projet Supabase et deux comptes de test distincts, pa
 
 ## Avatar
 
-1. A charge une image JPG/PNG/WebP < 2 Mo : autorisé.
-2. A tente un fichier > 2 Mo : refus côté interface / Storage.
+1. A charge une image JPG/PNG/WebP < 5 Mo : autorisé.
+2. A tente un fichier > 5 Mo : refus côté interface / Storage.
 3. B tente d'écrire dans le dossier Storage de A : refus attendu.
 
 ## Validation finale
