@@ -71,3 +71,9 @@ Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
 - Carte Leaflet intégrée au bundle Vite : plus de dépendance au CDN unpkg.
 - Accueil mobile compacté pour réduire fortement le scroll.
 - Aucun changement SQL Supabase.
+
+
+## V3.9.2 — Recherche / carte robuste
+- La recherche partenaire retombe automatiquement sur les champs de profil de base si des colonnes optionnelles V3.4/V3.5 ne sont pas encore disponibles dans Supabase.
+- La carte réutilise cette recherche compatible et ne tombe plus en panne uniquement à cause d'une colonne optionnelle manquante.
+- Aucun SQL n'est requis pour la recherche et la carte de base. Les fonctions avancées nécessitent toujours les migrations 003/004.
