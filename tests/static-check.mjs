@@ -18,7 +18,8 @@ const required = [
   "supabase/migrations/001_kizconnect_v3.sql",
   "supabase/migrations/002_kizconnect_v3_3_beta_feedback.sql",
   "supabase/migrations/003_kizconnect_v3_4_training_connections.sql",
-  "supabase/migrations/004_kizconnect_v3_5_dance_role.sql"
+  "supabase/migrations/004_kizconnect_v3_5_dance_role.sql",
+  "supabase/migrations/005_kizconnect_v3_9_3_avatar_5mb.sql"
 ];
 
 const failures = [];
@@ -27,7 +28,7 @@ for (const file of required) {
 }
 
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-if (pkg.version !== "3.9.2") failures.push("package.json n'est pas en version 3.9.2");
+if (pkg.version !== "3.9.3") failures.push("package.json n'est pas en version 3.9.3");
 
 const main = fs.readFileSync(path.join(root, "src/main.js"), "utf8");
 const api = fs.readFileSync(path.join(root, "src/api.js"), "utf8");
@@ -35,6 +36,7 @@ const sql = fs.readFileSync(path.join(root, "supabase/migrations/001_kizconnect_
 const sql33 = fs.readFileSync(path.join(root, "supabase/migrations/002_kizconnect_v3_3_beta_feedback.sql"), "utf8");
 const sql34 = fs.readFileSync(path.join(root, "supabase/migrations/003_kizconnect_v3_4_training_connections.sql"), "utf8");
 const sql35 = fs.readFileSync(path.join(root, "supabase/migrations/004_kizconnect_v3_5_dance_role.sql"), "utf8");
+const sql393 = fs.readFileSync(path.join(root, "supabase/migrations/005_kizconnect_v3_9_3_avatar_5mb.sql"), "utf8");
 
 for (const banned of ["UPSTASH", "Tickets", "ticket", "kc_me"]) {
   if ((main + api).includes(banned)) failures.push(`Ancien élément détecté dans le frontend : ${banned}`);
@@ -78,9 +80,13 @@ for (const expected of ["add column if not exists dance_role", "profiles_valid_d
 for (const expected of ["fullFields", "compatFields", "missingColumn", "training_match_enabled: false"]) {
   if (!api.includes(expected)) failures.push(`Compatibilité recherche V3.9.2 absente : ${expected}`);
 }
+for (const expected of ["file_size_limit = 5242880", "avatars"]) {
+  if (!sql393.includes(expected)) failures.push(`Évolution V3.9.3 absente : ${expected}`);
+}
+
 if (failures.length) {
-  console.error("KizConnect V3.9.2 — échec du contrôle statique:\n- " + failures.join("\n- "));
+  console.error("KizConnect V3.9.3 — échec du contrôle statique:\n- " + failures.join("\n- "));
   process.exit(1);
 }
 
-console.log("KizConnect V3.9.2 — contrôle statique OK.");
+console.log("KizConnect V3.9.3 — contrôle statique OK.");
