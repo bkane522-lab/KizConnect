@@ -1952,3 +1952,15 @@ label { color: #fcf6ff; }
   .map-kicker { font-size: .58rem; }
   .partner-map-canvas { height: 52vh; min-height: 320px; border-radius: 16px; }
 }
+
+
+/* V3.9.4 — Home hierarchy: Découvrir visible sooner */
+.neo-discover-priority {
+  box-shadow: 0 0 28px rgba(173, 46, 238, .10);
+}
+.neo-community-lower { margin-top: 2px; }
+@media (max-width: 620px) {
+  .neo-discover-priority { margin-top: -1px; }
+  .neo-discover-priority .neo-discover-card { min-height: 124px; }
+  .neo-discover-priority .neo-section-heading h2 { margin-bottom: 7px; }
+}

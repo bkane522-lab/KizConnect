@@ -8,7 +8,7 @@ import { filterProfilesByRadius, geocodeFrenchCity } from "./geo.js";
 const app = document.querySelector("#app");
 const PENDING_KEY = "kizconnect_pending_action";
 const GOOGLE_AUTH_KEY = "kizconnect_google_auth";
-const APP_VERSION = "3.9.3";
+const APP_VERSION = "3.9.4";
 
 const state = {
   screen: "home",
@@ -162,20 +162,21 @@ function homeIcon(type) {
 function homeView() {
   return `${statusBlock()}
     <section class="neo-hero"><div class="neo-hero-copy"><span class="neo-kicker">KIZ CONNECT · BÊTA</span><h1>Trouvez avec qui <em>danser.</em></h1><p>Partenaire, covoiturage, messages.<br>Allez directement à l’essentiel.</p></div><div class="neo-hero-art" aria-hidden="true"><img src="/assets/kizconnect-symbol.png" alt=""></div></section>
+    <section class="neo-discover neo-discover-priority"><div class="neo-section-heading"><h2>Découvrir</h2></div><div class="neo-discover-grid">
+      <button class="neo-discover-card neo-training" data-action="go" data-screen="partners"><span class="neo-mini-icon">▦</span><strong>Prochains<br>trainings</strong><small>Explorez les demandes de training.</small><b>›</b></button>
+      <button class="neo-discover-card neo-near" data-action="go" data-screen="partner-map"><span class="neo-mini-icon">⌖</span><strong>Partenaires<br>sur la carte</strong><small>Visualisez les danseurs autour de votre ville.</small><b>›</b></button>
+      <button class="neo-discover-card neo-chat" data-action="messages"><span class="neo-mini-icon">▤</span><strong>Vos<br>messages</strong><small>Retrouvez vos échanges.</small><b>›</b></button>
+    </div></section>
     <section class="neo-actions" aria-labelledby="neo-actions-title"><h2 id="neo-actions-title">Que cherchez-vous ?</h2>
       <button class="neo-action neo-action-partner" data-action="go" data-screen="partners"><span class="neo-action-icon">${homeIcon("partner")}</span><span><strong>TROUVER UN PARTENAIRE</strong><small>Ville, style et niveau.</small></span><b>›</b></button>
       <button class="neo-action neo-action-car" data-action="go" data-screen="carpool"><span class="neo-action-icon">${homeIcon("car")}</span><span><strong>COVOITURAGE</strong><small>Chercher ou proposer des places.</small></span><b>›</b></button>
       <button class="neo-action neo-action-message" data-action="messages"><span class="neo-action-icon">${homeIcon("message")}</span><span><strong>MES MESSAGES</strong><small>Retrouvez vos conversations.</small></span><b>›</b></button>
     </section>
     ${state.session && state.profile?.training_match_enabled ? `<div id="home-training-match-alert"></div>` : ""}
-    <section class="neo-community"><div><strong>KizConnect est ouvert à tous les danseurs.</strong><p>Version bêta · Vos retours nous aident à améliorer l’app.</p><button class="neo-feedback" data-action="feedback">☏ &nbsp; Donner mon avis <span>›</span></button></div><div class="neo-dance-trail" aria-hidden="true"><span class="trail-line trail-a"></span><span class="trail-line trail-b"></span><i class="step step-1"></i><i class="step step-2"></i><i class="step step-3"></i><i class="step step-4"></i></div></section>
-    <section class="neo-discover"><div class="neo-section-heading"><h2>Découvrir</h2></div><div class="neo-discover-grid">
-      <button class="neo-discover-card neo-training" data-action="go" data-screen="partners"><span class="neo-mini-icon">▦</span><strong>Prochains<br>trainings</strong><small>Explorez les demandes de training.</small><b>›</b></button>
-      <button class="neo-discover-card neo-near" data-action="go" data-screen="partner-map"><span class="neo-mini-icon">⌖</span><strong>Partenaires<br>sur la carte</strong><small>Visualisez les danseurs autour de votre ville.</small><b>›</b></button>
-      <button class="neo-discover-card neo-chat" data-action="messages"><span class="neo-mini-icon">▤</span><strong>Vos<br>messages</strong><small>Retrouvez vos échanges.</small><b>›</b></button>
-    </div></section>
+    <section class="neo-community neo-community-lower"><div><strong>KizConnect est ouvert à tous les danseurs.</strong><p>Version bêta · Vos retours nous aident à améliorer l’app.</p><button class="neo-feedback" data-action="feedback">☏ &nbsp; Donner mon avis <span>›</span></button></div><div class="neo-dance-trail" aria-hidden="true"><span class="trail-line trail-a"></span><span class="trail-line trail-b"></span><i class="step step-1"></i><i class="step step-2"></i><i class="step step-3"></i><i class="step step-4"></i></div></section>
     <section class="neo-benefits"><h2>Pourquoi KizConnect ?</h2><div class="neo-benefits-grid"><div><span>✦</span><strong>Simple</strong><small>Une app claire et intuitive.</small></div><div><span>ϟ</span><strong>Rapide</strong><small>Trouvez, échangez, organisez.</small></div><div><span>♧</span><strong>Entre danseurs</strong><small>Une communauté passionnée.</small></div></div></section>`;
 }
+
 function bottomNav() {
   const selected = state.screen === "home" ? "home" : (state.screen === "partners" || state.screen === "partner-map") ? "partners" : state.screen === "messages" || state.screen === "chat" ? "messages" : state.screen === "profile" ? "profile" : "";
   return `<nav class="neo-bottom-nav" aria-label="Navigation principale">
