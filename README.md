@@ -84,3 +84,10 @@ Accueil néon et navigation basse, sans migration SQL. Voir docs/V3.8_DESIGN.md.
 - texte d'interface mis à jour ;
 - bucket Supabase `avatars` porté à 5 Mo via la migration `005_kizconnect_v3_9_3_avatar_5mb.sql` ;
 - formats conservés : JPG, PNG et WebP.
+
+
+## V3.9.4 — Accueil réorganisé
+- la section **Découvrir** passe juste sous le hero pour être visible beaucoup plus tôt ;
+- **Que cherchez-vous ?** vient ensuite ;
+- **Donner mon avis** descend sous les actions principales ;
+- aucun changement Supabase ou SQL.
